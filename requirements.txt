@@ -408,7 +408,7 @@ wcwidth @ file:///Users/ktietz/demo/mc3/conda-bld/wcwidth_1629357192024/work
 webcolors==1.13
 webencodings==0.5.1
 websocket-client @ file:///work/ci_py311/websocket-client_1676824890004/work
-Werkzeug==2.3.6
+Werkzeug==2.3.8
 whatthepatch @ file:///work/ci_py311/whatthepatch_1677708379946/work
 widgetsnbextension @ file:///croot/widgetsnbextension_1701273613663/work
 wrapt @ file:///work/ci_py311/wrapt_1676827586170/work
