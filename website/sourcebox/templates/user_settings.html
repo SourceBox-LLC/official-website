@@ -9,10 +9,10 @@
     <div class="row justify-content-center">
         <div class="col-md-9"> <!-- Adjusted to span 3 columns like the cards below -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header box-color2">
                     {{current_user.username}}
                 </div>
-                <div class="card-body">
+                <div class="card-body box-color3">
                     <h5 class="card-title">Premium status: {{current_user.premium_status}}</h5>
                     <p class="card-text">Email: {{current_user.email}} </p>
                 </div>
@@ -22,32 +22,52 @@
     <br/>
     <div class="row justify-content-center">
         <div class="col-md-3">
-            <div class="card" style="width: 18rem;">
+            <div class="card box-color3 border border-dark p-3 rounded-5" style="width: 18rem;">
                 <div class="card-body">
-                    <h5 class="card-title">Reset Email or Password</h5>
-                    <p class="card-text">If you're having issues reset your email and your password here</p>
-                    <a href="#" class="btn btn-primary">Reset</a>
+                    <h5 class="card-title border border-dark p-3 rounded-5" align="center">Reset Email or Password</h5>
+                    <br/>
+                    <p class="card-text p-2">If you're having issues reset your email and your password here</p>
+                    <hr/>
+                    <div align="right" class="p-2">
+                        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                        </svg></a>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card" style="width: 18rem;">
+            <div class="card box-color3 border border-dark p-3 rounded-5" style="width: 18rem;">
                 <div class="card-body">
-                    <h5 class="card-title">Upgrade to Premium</h5>
+                    <h5 class="card-title border border-dark p-3 rounded-5" align="center">Upgrade to Premium</h5>
+                    <br/>
                     <p class="card-text">Get the most of SourceBox and support free content</p>
-                    <a href="#" class="btn btn-primary">Upgrade</a>
+                    <hr/>
+                    <div align="right" class="p-2">
+                        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                        </svg></a>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card" style="width: 18rem;">
+            <div class="card box-color3 border border-dark p-3 rounded-5" style="width: 18rem;">
                 <div class="card-body">
-                    <h5 class="card-title">Delete Account</h5>
+                    <h5 class="card-title border border-dark p-3 rounded-5" align="center">Delete Account</h5>
+                    <br/>
                     <p class="card-text">Permanently delete your SourceBox account</p>
-                    <a href="#" class="btn btn-danger">Delete Account</a>
+                    <hr/>
+                    <div align="right" class="p-2">
+                        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                        </svg></a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/user_settings.js') }}"></script>
+
 {% endblock %}
