@@ -63,6 +63,10 @@ h1, h2, h3, h4, h5, h6, p, div {
     background-color: #faf7fc;
 }
 
+/* content box sizes*/
+.box-size1 {
+    min-width: 25vw;
+}
 
 /* Make carousel initially invisible */
 .invisible-carousel {

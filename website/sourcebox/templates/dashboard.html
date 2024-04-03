@@ -26,7 +26,7 @@
   <div class="row container-fluid">
   {% for item in last_5_history_items %}
     {% if item.action == "entered wikidoc" %}
-      <div class="col container">
+      <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
             <h5 class="card-title">Wikidoc</h5>
@@ -38,7 +38,7 @@
         </div>
       </div>
     {% elif item.action == "entered codedoc" %}
-      <div class="col container">
+      <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
             <h5 class="card-title">Codedoc</h5>
@@ -50,7 +50,7 @@
         </div>
       </div>
     {% elif item.action == "entered source-lightning" %}
-      <div class="col container">
+      <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
             <h5 class="card-title">Source-Lightning<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
@@ -64,7 +64,7 @@
         </div>
       </div>
     {% elif item.action == "entered pack-man" %}
-      <div class="col container">
+      <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
             <h5 class="card-title">Pack-Man <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
@@ -78,7 +78,7 @@
         </div>
       </div>
     {% elif item.action == "entered source-mail" %}
-      <div class="col container">
+      <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
             <h5 class="card-title">SourceMail</h5>
@@ -99,8 +99,8 @@
 <br/>
 
 <div class="row container-fluid">
-  <div class="col-md-3">
-    <div class="card box-color3 border border-dark rounded-5" style="width: 18rem;">
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="card box-color3 border border-dark rounded-5">
       <div class="card-body">
         <h5 class="card-title">Settings <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
           <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
@@ -112,8 +112,8 @@
       </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card box-color3 border border-dark rounded-5" style="width: 18rem;">
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="card box-color3 border border-dark rounded-5">
       <div class="card-body">
         <h5 class="card-title">Demos and Services</h5>
         <hr>
