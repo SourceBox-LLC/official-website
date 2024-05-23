@@ -13,7 +13,7 @@ DB_NAME = "database.db"
 def create_app():
     application = Flask(__name__)
     application.config['SECRET_KEY'] = "secret"
-    application.config['SQLALCHEMY_DATABASE_URI'] ='database-1.c7quggcsmhxr.us-east-2.rds.amazonaws.com' #"sqlite:///{DB_NAME}"
+    application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///{DB_NAME}"
     db.init_app(application)
 
     #global template like base
