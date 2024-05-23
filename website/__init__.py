@@ -11,13 +11,13 @@ DB_NAME = "database.db"
 
 
 def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = "secret"
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///{DB_NAME}"
-    db.init_app(app)
+    application = Flask(__name__)
+    application.config['SECRET_KEY'] = "secret"
+    application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///{DB_NAME}"
+    db.init_app(application)
 
     #global template like base
-    @app.context_processor
+    @application.context_processor
     def inject_user():
         return dict(current_user=current_user)
 
@@ -28,25 +28,25 @@ def create_app():
     from website.admin.admin import admin
     from website.services.services import service
 
-    app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(admin, url_prefix='/')
-    app.register_blueprint(service, url_prefix='/service')
+    application.register_blueprint(views, url_prefix='/')
+    application.register_blueprint(auth, url_prefix='/')
+    application.register_blueprint(admin, url_prefix='/')
+    application.register_blueprint(service, url_prefix='/service')
     
 
     from .models import User
     #from .models import PlatformUpdates
-    create_database(app)
+    create_database(application)
 
     Login_manager = LoginManager()
     Login_manager.login_view = 'auth.login'
-    Login_manager.init_app(app)
+    Login_manager.init_app(application)
 
     @Login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
 
-    return app
+    return application
 
 
 def create_database(app):
