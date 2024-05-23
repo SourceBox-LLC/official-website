@@ -1,4 +1,5 @@
 from transformers import pipeline
+#
 
 def get_sentiment():
     sentiment_pipeline = pipeline("sentiment-analysis")
