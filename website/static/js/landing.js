@@ -1,4 +1,38 @@
 
+// uses aws api gateway to give ai responses to front page modal
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('thropicForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const modalBody = document.getElementById('modalBody');
+    const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
+
+    submitBtn.addEventListener('click', function() {
+        const formData = new FormData(form);
+
+        fetch('/g-thropic-api', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                modalBody.textContent = data.error;
+            } else {
+                modalBody.textContent = data.message;
+            }
+            submissionModal.show(); // Show the modal
+        })
+        .catch(error => {
+            modalBody.textContent = 'An error occurred';
+            submissionModal.show(); // Show the modal even if there's an error
+        });
+    });
+});
+
+
+
+
+
 
 document.getElementById('confirmSubmit').addEventListener('click', function() {
     var form = document.querySelector('form');

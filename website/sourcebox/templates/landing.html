@@ -217,7 +217,7 @@
                 <h5 class="modal-title" id="modalLabel">Response</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="modalBody">
                 GPT response content will be displayed here.
             </div>
             <div class="modal-footer">
@@ -242,7 +242,7 @@
                 <div class="row">
                     <div class="col-md-8 offset-md-2">
                         <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                            <form method="POST" enctype="multipart/form-data" action="/llama-content">
+                            <form id="thropicForm" method="POST" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="fileToUpload" class="p-4">Fetch your data:</label>
                                     <input type="file" name="file" id="file">
@@ -250,7 +250,7 @@
                                     <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
                                 </div>
                                 <br/>
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                                <button type="button" class="btn btn-danger" id="submitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
                             </form>
                         </div>
                     </div>
