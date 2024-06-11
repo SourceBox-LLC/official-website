@@ -158,7 +158,6 @@ def g_thropic_api():
     print(f"Filename received: {file.filename}")
 
 
-
     def rag_function(file, prompt):
         print("Inside rag_function")
         BASE_URL = "https://1rhj1momh3.execute-api.us-east-2.amazonaws.com/first-deploy"
