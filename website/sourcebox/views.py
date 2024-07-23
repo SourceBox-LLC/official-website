@@ -119,7 +119,7 @@ def rag_api():
     # Initialize the session
     session = requests.Session()
     # Define the base URL
-    base_url = 'https://sourcebox-rag-api-9f82a9c7f128.herokuapp.com'
+    base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
 
     # 1. Upload the file
     upload_url = f'{base_url}/upload'
@@ -158,3 +158,16 @@ def rag_api():
         return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
     else:
         return jsonify(error="Invalid file type"), 400
+
+
+@views.route('/rag-api-sentiment', methods=['POST'])
+def rag_api_sentiment():
+    data = {'user_message': 'You suck I hate you!'}
+    session = requests.Session()
+    base_url = 'https://sourcebox-rag-api-9f82a9c7f128.herokuapp.com'
+    # 3. Get sentiment response
+    sentiment_response_url = f'{base_url}/sentiment-pipe'
+    response = session.post(sentiment_response_url, json=data)
+    sentiment_response = response.json()
+    print("sentiment response:", sentiment_response)
+    return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))
