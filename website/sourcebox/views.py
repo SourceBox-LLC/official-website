@@ -8,22 +8,23 @@ from .. import db
 
 views = Blueprint('views', __name__, template_folder='templates')
 
+UPLOAD_FOLDER = '/workspaces/SourceBox-official-website/uploads'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'xlsx'}
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def record_user_history(action):
-     #record user history
+    # record user history
     history = UserHistory(user_id=current_user.id, action=action)
     db.session.add(history)
     db.session.commit()
-
-
-
 
 @views.route('/')
 @views.route('/landing')
 def landing():
     return render_template('landing.html')
-
-
 
 @views.route('/dashboard')
 @login_required
@@ -49,18 +50,11 @@ def dashboard():
     
     return render_template('dashboard.html', last_5_history_items=unique_filtered_items)
 
-
-
 @views.route('/updates')
 def updates():
     all_updates = PlatformUpdates.query.all()
     record_user_history("entered updates")
-
     return render_template('updates.html', all_updates=all_updates)
-
-
-
-
 
 @views.route('/content')
 @login_required
@@ -93,50 +87,32 @@ def launch_pack_man():
 def launch_source_mail():
     return redirect(url_for('service.source_mail'))
 
-
-
-
-
 @views.route('/docs')
 def documentation():
     record_user_history("entered docs")
-
     return render_template('docs.html')
-
-
 
 @views.route('/user_settings')
 @login_required
 def user_settings():
     record_user_history("entered settings")
-
     return render_template('user_settings.html')
-
-
 
 @views.route('/premium_info')
 def premeum_info():
     return render_template('premium_info.html')
 
-
-#download boilerplate landing.html example
+# Download boilerplate landing.html example
 DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'SourceLightning')
 @views.route('/download_plate/<filename>')
 def download_plate(filename):
     # Prevent directory traversal vulnerability
     safe_path = safe_join(DOWNLOAD_DIRECTORY, filename)
-
     # Check if the file exists
     if not os.path.isfile(safe_path):
         abort(404)
-
     # Serve the file for download
     return send_from_directory(DOWNLOAD_DIRECTORY, filename, as_attachment=True)
-
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'xlsx'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 @views.route('/rag-api', methods=['POST'])
 def rag_api():
@@ -148,34 +124,37 @@ def rag_api():
     # 1. Upload the file
     upload_url = f'{base_url}/upload'
     file = request.files.get('file')
-    file_path = '/workspaces/SourceBox-official-website/uploads/Developer_resume.pdf'
-
-    if file:
-        file.save(file_path)
-
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        response = session.post(upload_url, files=files)
-        upload_response = response.json()
-        print("Upload response:", upload_response)
-
-    # 2. Retrieve the list of uploaded files
-    retrieve_files_url = f'{base_url}/retrieve-files'
-    response = session.get(retrieve_files_url)
-    retrieve_files_response = response.json()
-    print("Retrieve files response:", retrieve_files_response)
-
-    # 3. Get GPT-3 response
-    gpt_response_url = f'{base_url}/gpt-response'
-    data = {'user_message': 'Explain the content of the uploaded file'}
-    response = session.post(gpt_response_url, json=data)
-    gpt_response = response.json()
-    print("GPT response:", gpt_response)
-
-    # 4. Delete the session and all associated files
-    delete_session_url = f'{base_url}/delete-session'
-    response = session.delete(delete_session_url)
-    delete_session_response = response.json()
-    print("Delete session response:", delete_session_response)
     
-    return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+        
+        with open(file_path, 'rb') as f:
+            files = {'file': f}
+            response = session.post(upload_url, files=files)
+            upload_response = response.json()
+            print("Upload response:", upload_response)
+        
+        # 2. Retrieve the list of uploaded files
+        retrieve_files_url = f'{base_url}/retrieve-files'
+        response = session.get(retrieve_files_url)
+        retrieve_files_response = response.json()
+        print("Retrieve files response:", retrieve_files_response)
+
+        # 3. Get GPT-3 response
+        gpt_response_url = f'{base_url}/gpt-response'
+        data = {'user_message': 'Explain the content of the uploaded file'}
+        response = session.post(gpt_response_url, json=data)
+        gpt_response = response.json()
+        print("GPT response:", gpt_response)
+
+        # 4. Delete the session and all associated files
+        delete_session_url = f'{base_url}/delete-session'
+        response = session.delete(delete_session_url)
+        delete_session_response = response.json()
+        print("Delete session response:", delete_session_response)
+        
+        return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
+    else:
+        return jsonify(error="Invalid file type"), 400
