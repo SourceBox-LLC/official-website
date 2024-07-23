@@ -1,4 +1,3 @@
-
 // uses aws api gateway to give ai responses to front page modal
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('thropicForm');
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.addEventListener('click', function() {
         const formData = new FormData(form);
 
-        fetch('/g-thropic-api', {
+        fetch('/rag-api', {
             method: 'POST',
             body: formData
         })
@@ -29,15 +28,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-
-
-
-
 document.getElementById('confirmSubmit').addEventListener('click', function() {
     var form = document.querySelector('form');
     form.submit(); // Submit the form
 });
+
 document.querySelectorAll('.dropdown-item').forEach(item => {
     item.addEventListener('click', function() {
         var filename = this.getAttribute('data-filename');
@@ -49,7 +44,6 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
 });
 
 $(document).ready(function() {
-    
     // Function to check if the element is in viewport
     function isElementInView(element) {
         var elementTop = $(element).offset().top;
@@ -84,12 +78,10 @@ $(document).ready(function() {
         function() {
             // Mouse enters column area
             $(this).addClass('box-color3 fs-3').removeClass('fs-4');
-
         }, 
         function() {
             // Mouse leaves column area
             $(this).removeClass('box-color3 fs-3').addClass('fs-4');
-
         }
     );
 
@@ -104,7 +96,7 @@ $(document).ready(function() {
         }
     );
 
-    //content highlight
+    // Content highlight
     $('.card.box-color3.rounded-5.border-dark').hover(
         function() {
             // Mouse enters the card area
@@ -116,10 +108,10 @@ $(document).ready(function() {
         }
     );
 
-
     $('#confirmSubmit').click(function() {
         $('form').submit(); // Submit the form
     });
+
     $('.dropdown-item').click(function() {
         var filename = $(this).attr('data-filename');
         var downloadLink = $('#downloadLink');

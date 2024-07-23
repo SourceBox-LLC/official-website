@@ -138,60 +138,44 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@views.route('/g-thropic-api', methods=['POST'])
-def g_thropic_api():
-    print("Route /g-thropic-api accessed")
-    print("Request method:", request.method)
+@views.route('/rag-api', methods=['POST'])
+def rag_api():
+    # Initialize the session
+    session = requests.Session()
+    # Define the base URL
+    base_url = 'https://sourcebox-rag-api-9f82a9c7f128.herokuapp.com'
 
-    if 'file' not in request.files:
-        print("No file part in the request")
-        return jsonify({"error": "No file part"}), 400
+    # 1. Upload the file
+    upload_url = f'{base_url}/upload'
+    file = request.files.get('file')
+    file_path = '/workspaces/SourceBox-official-website/uploads/Developer_resume.pdf'
 
-    file = request.files['file']
-    prompt = request.form.get('prompt')
+    if file:
+        file.save(file_path)
 
-    if not prompt:
-        print("No prompt provided")
-        return jsonify({"error": "No prompt provided"}), 400
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        response = session.post(upload_url, files=files)
+        upload_response = response.json()
+        print("Upload response:", upload_response)
 
-    print(f"Prompt received by user: {prompt}")
-    print(f"Filename received: {file.filename}")
+    # 2. Retrieve the list of uploaded files
+    retrieve_files_url = f'{base_url}/retrieve-files'
+    response = session.get(retrieve_files_url)
+    retrieve_files_response = response.json()
+    print("Retrieve files response:", retrieve_files_response)
 
+    # 3. Get GPT-3 response
+    gpt_response_url = f'{base_url}/gpt-response'
+    data = {'user_message': 'Explain the content of the uploaded file'}
+    response = session.post(gpt_response_url, json=data)
+    gpt_response = response.json()
+    print("GPT response:", gpt_response)
 
-    def rag_function(file, prompt):
-        print("Inside rag_function")
-        BASE_URL = "https://1rhj1momh3.execute-api.us-east-2.amazonaws.com/first-deploy"
-        headers = {
-            "Accept": "application/json"
-        }
-
-        if file.filename == '':
-            print("No selected file")
-            return jsonify({"error": "No selected file"}), 400
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join('/workspaces/python-11/uploads', filename)  # Change this to your desired upload path
-            print(f"Saving file to {file_path}")
-            file.save(file_path)
-
-            # Now handle the file upload part
-            with open(file_path, 'rb') as f:
-                files = {'file': f}
-                print("Sending POST request to /openai-rag-test with file...")
-                response = requests.post(BASE_URL + f"/openai-rag-test?prompt={prompt}", headers=headers, files=files)
-
-                print(f"POST /openai-rag-test response: {response.json()}")
-                print(f"Response status code: {response.status_code}")
-                return response
-        else:
-            print("File type not allowed")
-            return jsonify({"error": "File type not allowed"}), 400
-
-    result = rag_function(file, prompt)
-    if isinstance(result, requests.Response):
-        print("Returning JSON response from RAG function")
-        print(result)
-        return jsonify(result.json())
-    print("Returning result directly from RAG function")
-    return result
+    # 4. Delete the session and all associated files
+    delete_session_url = f'{base_url}/delete-session'
+    response = session.delete(delete_session_url)
+    delete_session_response = response.json()
+    print("Delete session response:", delete_session_response)
+    
+    return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
