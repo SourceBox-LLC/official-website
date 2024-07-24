@@ -293,13 +293,13 @@
             <div class="row">
                 <div class="col-md-8 offset-md-2">
                     <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                        <form method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
+                        <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
                             <div class="form-group">
                                 <label for="prompt"></label>
                                 <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
                             </div>
                             <br/>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                            <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
                         </form>
                     </div>
                 </div>

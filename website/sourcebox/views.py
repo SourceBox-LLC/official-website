@@ -162,12 +162,13 @@ def rag_api():
 
 @views.route('/rag-api-sentiment', methods=['POST'])
 def rag_api_sentiment():
-    data = {'user_message': 'You suck I hate you!'}
+    data = {'user_message': request.form.get('prompt', '')}
     session = requests.Session()
-    base_url = 'https://sourcebox-rag-api-9f82a9c7f128.herokuapp.com'
-    # 3. Get sentiment response
+    base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
+    
+    # Get sentiment response
     sentiment_response_url = f'{base_url}/sentiment-pipe'
     response = session.post(sentiment_response_url, json=data)
     sentiment_response = response.json()
-    print("sentiment response:", sentiment_response)
+    print("Sentiment response:", sentiment_response)
     return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))

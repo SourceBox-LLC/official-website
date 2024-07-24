@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                modalBody.textContent = data.error;
+                modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = data.message;
+                modalBody.textContent = JSON.stringify(data.message, null, 2);
             }
             submissionModal.show(); // Show the modal
         })
@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                modalBody.textContent = data.error;
+                modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = data.message;
+                modalBody.textContent = JSON.stringify(data.message, null, 2);
             }
             submissionModal.show(); // Show the modal
         })
