@@ -1,14 +1,32 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_required, current_user, logout_user
 from dotenv import load_dotenv
 import os
 import requests
+from functools import wraps
 
 load_dotenv()
 
 auth = Blueprint('auth', __name__, template_folder='templates')
 
 API_URL = os.getenv('API_URL', 'http://localhost:5000')  # Use env variable for API URL
+
+def token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = session.get('access_token')
+        if not token:
+            flash("Please log in to access this page.", "warning")
+            return redirect(url_for('auth.login'))
+        
+        headers = {'Authorization': f'Bearer {token}'}
+        response = requests.get(f"{API_URL}/protected", headers=headers)
+        if response.status_code != 200:
+            flash("Session expired or invalid. Please log in again.", "warning")
+            return redirect(url_for('auth.login'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
 
 def record_user_history(action):
     token = session.get('access_token')
@@ -41,7 +59,7 @@ def sign_up():
         
         if response.status_code == 201:
             flash("Account created successfully", "success")
-            return redirect(url_for('views.dashboard'))
+            return redirect(url_for('auth.login'))
         else:
             flash(response.json().get("message", "Account creation failed"), "error")
 
@@ -54,7 +72,6 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # goes to admin page if admin
         if email == os.getenv("ADMIN_EMAIL") and password == os.getenv("ADMIN_PASSWORD"):
             return redirect(url_for('admin.admin_page'))
 
@@ -69,7 +86,8 @@ def login():
             access_token = response.json().get("access_token")
             session['access_token'] = access_token
             record_user_history("signed in")
-            return redirect(url_for('views.landing'))
+            flash("Login successful", "success")
+            return redirect(url_for('views.dashboard'))
         else:
             flash(response.json().get("message", "Login failed"), "error")
 
@@ -78,7 +96,6 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
-    # Record user history
-    record_user_history("signed out")
     session.pop('access_token', None)
-    return redirect(url_for('views.landing'))
+    flash("You have been logged out.", "info")
+    return redirect(url_for('auth.login'))
