@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, send_from_directory, jsonify, session
-from flask_login import current_user
-from werkzeug.utils import safe_join, secure_filename
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, session, jsonify
+from flask_login import login_required
+from werkzeug.utils import secure_filename
 import os, requests
-from website.authentication.auth import token_required  # Correct import based on directory structure
+from website.authentication.auth import token_required
 
 views = Blueprint('views', __name__, template_folder='templates')
 
@@ -180,4 +180,9 @@ def rag_api_sentiment():
     session = requests.Session()
     base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
     
-   
+    # Get sentiment response
+    sentiment_response_url = f'{base_url}/sentiment-pipe'
+    response = session.post(sentiment_response_url, json=data)
+    sentiment_response = response.json()
+    print("Sentiment response:", sentiment_response)
+    return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))

@@ -20,7 +20,7 @@ def token_required(f):
             return redirect(url_for('auth.login'))
         
         headers = {'Authorization': f'Bearer {token}'}
-        response = requests.get(f"{API_URL}/protected", headers=headers)
+        response = requests.get(f"{API_URL}/user_history", headers=headers)
         if response.status_code != 200:
             flash("Session expired or invalid. Please log in again.", "warning")
             return redirect(url_for('auth.login'))
