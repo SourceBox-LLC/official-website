@@ -1,9 +1,0 @@
-# .ebextensions/config.yml
-option_settings:
-  aws:elasticbeanstalk:application:environment:
-    FLASK_APP: application.py
-    FLASK_ENV: development
-    # Add other environment variables as needed
-    OPENAI_API_KEY: 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
-    ADMIN_EMAIL: admin@0.com
-    ADMIN_PASSWORD: admin0
