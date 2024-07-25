@@ -14,13 +14,13 @@ db = SQLAlchemy()
 DB_NAME = "database.db"
 
 def create_app():
-    application = Flask(__name__)
-    application.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    application.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-    db.init_app(application)
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+    db.init_app(app)
 
     # Global template like base
-    @application.context_processor
+    @app.context_processor
     def inject_user():
         return dict(current_user=current_user)
 
@@ -29,16 +29,16 @@ def create_app():
     from website.admin.admin import admin
     from website.services.services import service
 
-    application.register_blueprint(views, url_prefix='/')
-    application.register_blueprint(auth, url_prefix='/')
-    application.register_blueprint(admin, url_prefix='/')
-    application.register_blueprint(service, url_prefix='/service')
+    app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(admin, url_prefix='/')
+    app.register_blueprint(service, url_prefix='/service')
 
-    create_database(application)
+    create_database(app)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
-    login_manager.init_app(application)
+    login_manager.init_app(app)
 
     @login_manager.user_loader
     def load_user(id):
@@ -50,7 +50,7 @@ def create_app():
             return User(user_data['id'], user_data['email'], user_data['username'])
         return None
 
-    return application
+    return app
 
 def create_database(app):
     # This function can be removed or repurposed if not using local DB
