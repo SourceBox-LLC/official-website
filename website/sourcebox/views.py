@@ -7,7 +7,7 @@ from website.authentication.auth import token_required
 views = Blueprint('views', __name__, template_folder='templates')
 
 API_URL = os.getenv('API_URL', 'http://localhost:5000')  # Use env variable for API URL
-UPLOAD_FOLDER = '/workspaces/SourceBox-official-website/uploads'
+UPLOAD_FOLDER = '/tmp/uploads'  # Use writable directory on Heroku
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'xlsx'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -32,14 +32,14 @@ def landing():
 @token_required
 def dashboard():
     record_user_history("entered dashboard")
-    
+
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
     response = requests.get(f"{API_URL}/user_history", headers=headers)
-    
+
     if response.status_code == 200:
         all_history_items = response.json()
-        
+
         # Use a set to track seen actions to remove duplicates
         seen_actions = set()
         unique_filtered_items = []
@@ -47,12 +47,12 @@ def dashboard():
             if item['action'] in ("entered wikidoc", "entered codedoc", "entered source-lightning", "entered pack-man", "entered source-mail") and item['action'] not in seen_actions:
                 unique_filtered_items.append(item)
                 seen_actions.add(item['action'])
-        
+
         # Now unique_filtered_items contains unique items by action, 
         # but you might want to limit to the last 5 unique items if the list is too long
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
-        
+
         return render_template('dashboard.html', last_5_history_items=unique_filtered_items)
     else:
         flash('Failed to retrieve user history', 'error')
@@ -138,18 +138,18 @@ def rag_api():
     # 1. Upload the file
     upload_url = f'{base_url}/upload'
     file = request.files.get('file')
-    
+
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
-        
+
         with open(file_path, 'rb') as f:
             files = {'file': f}
             response = session.post(upload_url, files=files)
             upload_response = response.json()
             print("Upload response:", upload_response)
-        
+
         # 2. Retrieve the list of uploaded files
         retrieve_files_url = f'{base_url}/retrieve-files'
         response = session.get(retrieve_files_url)
@@ -168,7 +168,7 @@ def rag_api():
         response = session.delete(delete_session_url)
         delete_session_response = response.json()
         print("Delete session response:", delete_session_response)
-        
+
         return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
     else:
         return jsonify(error="Invalid file type"), 400
@@ -179,7 +179,7 @@ def rag_api_sentiment():
     data = {'user_message': request.form.get('prompt', '')}
     session = requests.Session()
     base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
-    
+
     # Get sentiment response
     sentiment_response_url = f'{base_url}/sentiment-pipe'
     response = session.post(sentiment_response_url, json=data)
