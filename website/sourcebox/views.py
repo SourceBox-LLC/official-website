@@ -96,10 +96,6 @@ def launch_source_lightning():
 def launch_pack_man():
     return redirect(url_for('service.pack_man'))
 
-@views.route('/content/source-mail')
-@token_required
-def launch_source_mail():
-    return redirect(url_for('service.source_mail'))
 
 @views.route('/docs')
 def documentation():

@@ -48,14 +48,14 @@ def token_required(f):
 @service.route('/service/wikidoc')
 @token_required
 def wikidoc():
-    record_user_history("entered wikidoc")
+    record_user_history("entered DeepQuery")
     return redirect("https://sourcebox-wikidoc-d6286dbab352.herokuapp.com") # link to wikidoc stand alone app
 
 @service.route('/service/codedoc')
 @token_required
 def codedoc():
-    record_user_history("entered codedoc")
-    return render_template('codedoc.html')
+    record_user_history("entered DeepQuery-Code")
+    return redirect('https://sourcebox-deepquery-code-cbb5c8459900.herokuapp.com') # link to codedoc stand alone app
 
 @service.route('/service/source-lightning')
 @token_required
@@ -69,8 +69,4 @@ def pack_man():
     record_user_history("entered pack-man")
     return redirect("https://sourcebox-packman-418797343a6b.herokuapp.com") # link to packman stand alone app
 
-@service.route('/service/source-mail')
-@token_required
-def source_mail():
-    record_user_history("entered source-mail")
-    return render_template('source_mail.html')
+
