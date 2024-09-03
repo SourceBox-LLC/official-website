@@ -182,3 +182,10 @@ def rag_api_sentiment():
     sentiment_response = response.json()
     print("Sentiment response:", sentiment_response)
     return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))
+
+
+
+@views.route('/platform-support', methods=['POST'])
+@token_required
+def platform_support():
+    return render_template('support.html')
