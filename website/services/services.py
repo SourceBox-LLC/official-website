@@ -70,3 +70,12 @@ def pack_man():
     return redirect("https://sourcebox-packman-418797343a6b.herokuapp.com") # link to packman stand alone app
 
 
+@service.route('/service/imagen')
+@token_required
+def imagen():
+    record_user_history("entered imagen")
+    return "entered imagen" # link to imagen stand alone app
+
+
+
+

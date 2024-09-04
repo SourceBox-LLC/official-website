@@ -3,6 +3,19 @@ from flask_login import login_required
 from werkzeug.utils import secure_filename
 import os, requests
 from website.authentication.auth import token_required
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
+import logging
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
 
 views = Blueprint('views', __name__, template_folder='templates')
 
@@ -97,6 +110,12 @@ def launch_pack_man():
     return redirect(url_for('service.pack_man'))
 
 
+@views.route('/content/imagen')
+@token_required
+def launch_imagen():
+    return redirect(url_for('service.imagen'))
+
+
 @views.route('/docs')
 def documentation():
     record_user_history("entered docs")
@@ -184,8 +203,78 @@ def rag_api_sentiment():
     return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))
 
 
-
-@views.route('/platform-support', methods=['POST'])
+# support ticket form
+@views.route('/platform-support', methods=['GET','POST'])
 @token_required
 def platform_support():
     return render_template('support.html')
+
+
+# send support ticket
+@views.route('/send_message', methods=['POST'])
+def send_message_route():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    message = request.form.get("message")
+
+    # Check if all fields are completed
+    if not name or not email or not message:
+        flash('All fields are required!', 'danger')
+        return redirect(url_for('index'))
+
+    # Combine name, email, and message into a single string to return
+    full_message = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+
+    try:
+        # Create the email content
+        msg = MIMEMultipart()
+        msg['From'] = os.getenv('GMAIL_USERNAME')
+        msg['To'] = os.getenv('GMAIL_USERNAME')
+        msg['Subject'] = "SourceBox Support Ticket Request"
+
+        # Attach the message
+        msg.attach(MIMEText(full_message, 'plain'))
+
+        # Connect to the server and send the email
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(os.getenv('GMAIL_USERNAME'), os.getenv('GOOGLE_PASSWORD'))  # Hide before GitHub push
+        server.send_message(msg)
+        server.quit()
+
+        flash('Message sent successfully!', 'success')
+    except smtplib.SMTPAuthenticationError as e:
+        logging.error(f"SMTP Authentication Error: {e}")
+        flash(f'Failed to send message. Error: {str(e)}', 'danger')
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        flash(f'Failed to send message. Error: {str(e)}', 'danger')
+
+    return redirect(url_for('views.platform_support'))
+
+
+
+# user support chatbot
+@views.route('/chat_assistant', methods=['POST'])
+def chat_assistant_route():
+    user_message = request.json.get("message")
+
+    client = OpenAI(
+        # This is the default and can be omitted
+        api_key = os.getenv('OPENAI_API_KEY')
+    )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": user_message,
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+
+    # Access the content using the 'message' attribute of the Choice object
+    assistant_message = chat_completion.choices[0].message.content
+    print(assistant_message)
+    return jsonify({"message": assistant_message})

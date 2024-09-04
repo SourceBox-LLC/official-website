@@ -11,6 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    {% block css %}
+    {% endblock %}
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body class="background-color">
