@@ -74,7 +74,7 @@ def pack_man():
 @token_required
 def imagen():
     record_user_history("entered imagen")
-    return "entered imagen" # link to imagen stand alone app
+    return redirect("https://sourcebox-imagen-8a638799d89b.herokuapp.com") # link to imagen stand alone app
 
 
 
