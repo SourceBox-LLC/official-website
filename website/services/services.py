@@ -61,7 +61,8 @@ def codedoc():
 @token_required
 def source_lightning():
     record_user_history("entered source-lightning")
-    return render_template('source_lightning.html')
+    return redirect("https://sourcebox-sourcelightning-8952e6a21707.herokuapp.com") # link to source lightning stand alone app
+
 
 @service.route('/service/pack-man')
 @token_required
@@ -75,6 +76,8 @@ def pack_man():
 def imagen():
     record_user_history("entered imagen")
     return redirect("https://sourcebox-imagen-8a638799d89b.herokuapp.com") # link to imagen stand alone app
+
+
 
 
 
