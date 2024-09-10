@@ -357,6 +357,22 @@
 <br/>
 <br/>
 <br/>
+<div class="modal fade" id="earlyModal" tabindex="-1" aria-labelledby="earlyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="earlyModalLabel">You're Early!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Welcome! You're early so a lot of features do not work or will not work as expected yet, but feel free to take a look around and try stuff out!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 
 {% endblock %}

@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Auto-launch the "You're Early!" modal on page load
+    const earlyModal = new bootstrap.Modal(document.getElementById('earlyModal'), {
+        keyboard: false
+    });
+    earlyModal.show(); // Show the "You're Early!" modal
+
+    // Existing code for thropicForm and sentimentForm handling
     const thropicForm = document.getElementById('thropicForm');
     const submitBtn = document.getElementById('submitBtn');
     const sentimentForm = document.getElementById('sentimentForm');
