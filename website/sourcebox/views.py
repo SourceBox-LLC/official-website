@@ -41,6 +41,10 @@ def record_user_history(action):
 def landing():
     return render_template('landing.html')
 
+@views.route('/learn_more')
+def learn_more():
+    return render_template('learn_more.html')
+
 @views.route('/dashboard')
 @token_required
 def dashboard():

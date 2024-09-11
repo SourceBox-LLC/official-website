@@ -122,7 +122,7 @@
       </div>
       <div class="col fs-4">
         <p class="border border-dark rounded-4 p-3">Get more out of generative AI beyond a chatbot! SourceBox embraces both Cloud and Local approaches to Agents, LLM's, and Machine learning solutions. SourceBox aims to provide both cloud services and local solutions. Integrate and query various forms of data with our cloud services or download, custom, and run AI applications and agents locally. </p>
-        <a href="#" class="btn btn-primary"><h4>Learn More 
+        <a href="{{ url_for('views.learn_more') }}#section1" class="btn btn-primary"><h4>Learn More 
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
             </svg>
@@ -142,8 +142,8 @@
 <div class="container invisible-section">
     <div class="row box-color2 p-3 rounded-4">
       <div class="col fs-4">
-        <p class="border border-dark rounded-4 p-3">No local models? New to LLM's? Don't know where to start? Too many questions? No worries, SourceBox has you covered! SourceBox has apps and services for all of your Generative AI needs all in one place! Spend more time and energy on what matters while we do the rest.</p>
-        <a href="#" class="btn btn-primary"><h4>Learn More 
+        <p class="border border-dark rounded-4 p-3">No local models? New to LLM's? Don't know where to start? Too many questions? No worries, SourceBox has you covered! It’s easy to feel overwhelmed by new technology, but SourceBox simplifies the process, offering everything you need in one place. Whether you're looking to build AI models from scratch or leverage pre-built services, we've got you covered. Focus on what matters to you, while we handle the complexity of AI.</p>
+        <a href="{{ url_for('views.learn_more') }}#section2" class="btn btn-primary"><h4>Learn More 
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
             </svg>
@@ -176,7 +176,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                 <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641z"/>
             </svg> is a no-code service for creating fully downloadable and instantly executable LLM applications lightning fast! Just choose a build, download, then enjoy forever. Thats it! No sign in or monthly subscription required once downloaded! Download and go or build on top of our open source code to kickstart your own applications.</p>
-          <a href="#" class="btn btn-primary"><h3>Launch 
+          <a href="{{ url_for('service.source_lightning') }}" class="btn btn-primary"><h3>Launch 
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                 <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641z"/>
             </svg>
@@ -200,7 +200,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
                 <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
             </svg> the SourceBox data package manager. Move RAG data between models and services with ease customizing and personalizing your Generative AI applications.</p>
-          <a href="#" class="btn btn-primary"><h3>Launch 
+          <a href="{{ url_for('service.pack_man') }}" class="btn btn-primary"><h3>Launch 
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
                 <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
             </svg>
@@ -213,6 +213,58 @@
 </div>
 <br/>
 <br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<div class="container invisible-section"></div>
+    <div class="row box-color2 p-3 rounded-4">
+      <div class="col">
+        <img class="img" src="{{ url_for('static', filename='images/cloud-with-circle-crossed.webp') }}" alt="cloud with crossed out red circle">
+      </div>
+      <div class="col fs-4">
+        <p class="border border-dark rounded-4 p-3">
+          Finally put your RAG data to work with DeepQuery 
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file-earmark-break" viewBox="0 0 16 16">
+            <path d="M14 4.5V9h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v7H2V2a2 2 0 0 1 2-2h5.5zM13 12h1v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2h1v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1zM.5 10a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1z"/>
+          </svg> 
+          and DeepQuery Code 
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file-earmark-code" viewBox="0 0 16 16">
+            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+            <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708m-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708"/>
+          </svg>. Connect your data and enjoy fully customized chatbots that understand your needs. Query your data directly without AI to get relevant information or use our chatbots to interpret your data and perform tasks.
+        </p>
+        <div class="d-flex justify-content-between">
+            <div class="d-flex gap-1">
+                <!-- First button with the bi-file-earmark-break icon -->
+                <a href="/content/wikidoc" class="btn btn-primary">
+                  <h3>Launch 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file-earmark-break" viewBox="0 0 16 16">
+                      <path d="M14 4.5V9h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v7H2V2a2 2 0 0 1 2-2h5.5zM13 12h1v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2h1v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1zM.5 10a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1z"/>
+                    </svg>
+                  </h3>
+                </a>
+                <!-- Second button with the bi-file-earmark-code icon -->
+                <a href="/content/codedoc" class="btn btn-primary">
+                  <h3>Launch 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file-earmark-code" viewBox="0 0 16 16">
+                      <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+                      <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708m-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                  </h3>
+                </a>
+            </div>
+          </div>          
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
 
 <!--LLM example output model-->
 <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
@@ -239,7 +291,7 @@
 <br/>
 <br/>
 <br/>
-<div id="carouselExample" class="carousel slide invisible-carousel">
+<div id="carouselExample" class="carousel slide">
     <div class="carousel-inner" align="center">
         <div class="carousel-item active">
             <h2>Start working with your own data instantly</h2>
@@ -288,79 +340,79 @@
             </div>
         </div>
         <div class="carousel-item">
-          <h4>Use Generative AI for sentiment analysis</h4>
-          <div class="container my-4">
-            <div class="row">
-                <div class="col-md-8 offset-md-2">
-                    <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                        <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
-                            <div class="form-group">
-                                <label for="prompt"></label>
-                                <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
-                            </div>
-                            <br/>
-                            <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
-                        </form>
+            <h4>Use Generative AI for sentiment analysis</h4>
+            <div class="container my-4">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
+                            <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
+                                <div class="form-group">
+                                    <label for="prompt"></label>
+                                    <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
+                                </div>
+                                <br/>
+                                <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-          </div>
         </div>
         <div class="carousel-item">
             <h4>Use AI to Webscrape online data clean and efficiently!</h4>
             <div class="container my-4">
-              <div class="row">
-                  <div class="col-md-8 offset-md-2">
-                      <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                          <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
-                              <div class="form-group">
-                                  <label for="prompt"></label>
-                                  <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
-                              </div>
-                              <br/>
-                              <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
-                          </form>
-                      </div>
-                  </div>
-              </div>
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
+                            <form id="scrapeForm" method="POST" enctype="multipart/form-data" action="/rag-api-webscrape">
+                                <div class="form-group">
+                                    <label for="prompt"></label>
+                                    <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
+                                </div>
+                                <br/>
+                                <button type="button" class="btn btn-danger" id="scrapeSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="carousel-item"></div>
+        <div class="carousel-item">
             <h4>Generate images from prompts using our selection of image generators!</h4>
             <div class="container my-4">
-              <div class="row">
-                  <div class="col-md-8 offset-md-2">
-                      <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                          <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
-                              <div class="form-group">
-                                  <label for="prompt"></label>
-                                  <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
-                              </div>
-                              <br/>
-                              <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
-                          </form>
-                      </div>
-                  </div>
-              </div>
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
+                            <form id="imageGenForm" method="POST" enctype="multipart/form-data" action="/rag-api-image">
+                                <div class="form-group">
+                                    <label for="prompt"></label>
+                                    <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
+                                </div>
+                                <br/>
+                                <button type="button" class="btn btn-danger" id="imageGenSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="carousel-item"></div>
+        <div class="carousel-item">
             <h4>Generate transcripts from audio samples fast and easy!</h4>
             <div class="container my-4">
-              <div class="row">
-                  <div class="col-md-8 offset-md-2">
-                      <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
-                          <form id="sentimentForm" method="POST" enctype="multipart/form-data" action="/rag-api-sentiment">
-                              <div class="form-group">
-                                  <label for="prompt"></label>
-                                  <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
-                              </div>
-                              <br/>
-                              <button type="button" class="btn btn-danger" id="sentimentSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
-                          </form>
-                      </div>
-                  </div>
-              </div>
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
+                            <form id="transcriptForm" method="POST" enctype="multipart/form-data" action="/rag-api-transcript">
+                                <div class="form-group">
+                                    <label for="prompt"></label>
+                                    <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
+                                </div>
+                                <br/>
+                                <button type="button" class="btn btn-danger" id="transcriptSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -373,6 +425,7 @@
         <span class="visually-hidden">Next</span>
     </button>
 </div>
+
 <br/>
 <br/>
 <div class="invisible-section" align="center">
@@ -436,6 +489,8 @@
             <br/>
             <li>Platform updates has not been rolled out yet so you will not be able to access them yet.</li>
         </ul>
+        <br/>
+        <a href="https://forms.gle/sA1Z1FRESpwFo6CJA" target="_blank">Report a Bug</a>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
