@@ -1,6 +1,5 @@
 
 
-
 $(document).ready(function() {
     $('.card').hover(
         function() {
@@ -11,4 +10,3 @@ $(document).ready(function() {
         }
     );
 });
-

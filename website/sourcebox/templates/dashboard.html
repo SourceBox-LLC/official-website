@@ -20,7 +20,22 @@
 
 <div>
   <br/>
-  <h2>Recent Activity</h2>
+  <br/>
+  <h1 align="center">Recent Activity</h1>
+  <br/>
+  <br/>
+  <!-- Token usage progress bar -->
+  <div class="progress" style="height: 30px; width: 70%; margin: 0 auto;">
+    <div id="tokenProgressBar" class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+      {{ tokens_used }} / {{ free_token_limit }} Tokens Used
+    </div>
+  </div>
+
+  <p align="center">You have {{ free_token_limit - tokens_used }} tokens remaining. Get unlimited with <a href="/premium_info">premium</a></p>
+  <p align="center">Don't want premium? pay as you go <a href="#">Here</a></p>
+
+  <br/>
+  <br/>
   <!--TODO: dynamicaly display recent activity-->
   <br/>
   <div class="row container-fluid">
@@ -94,7 +109,6 @@
     <p>No recent activity found.</p>
   {% endfor %}
   </div>
-
 </div>
 <br/>
 
@@ -125,5 +139,21 @@
 </div>
 <br/>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<!-- Inject token_percentage_used into the script -->
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    // Ensure that the token percentage is properly interpreted as a number
+    var tokenPercentage = {{ token_percentage_used | tojson }}; // tojson safely passes the number into JavaScript
+
+    // Find the progress bar element
+    var progressBar = document.getElementById('tokenProgressBar');
+
+    // Dynamically set the width of the progress bar
+    progressBar.style.width = tokenPercentage + '%';
+
+    // Set aria-valuenow attribute for accessibility
+    progressBar.setAttribute('aria-valuenow', tokenPercentage);
+  });
+</script>
 
 {% endblock %}

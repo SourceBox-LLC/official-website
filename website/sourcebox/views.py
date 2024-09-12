@@ -50,6 +50,7 @@ def learn_more():
 def dashboard():
     record_user_history("entered dashboard")
 
+
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
     response = requests.get(f"{API_URL}/user_history", headers=headers)
@@ -69,8 +70,18 @@ def dashboard():
         # but you might want to limit to the last 5 unique items if the list is too long
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
+        
+        free_token_limit = 20
+        tokens_used = 12
 
-        return render_template('dashboard.html', last_5_history_items=unique_filtered_items)
+        # Ensure the token percentage is properly calculated
+        if free_token_limit > 0:
+            token_percentage_used = (tokens_used / free_token_limit) * 100
+        else:
+            token_percentage_used = 0
+        
+
+        return render_template('dashboard.html', last_5_history_items=unique_filtered_items, free_token_limit=free_token_limit, tokens_used=tokens_used, token_percentage_used=token_percentage_used)
     else:
         flash('Failed to retrieve user history', 'error')
         return redirect(url_for('views.landing'))
