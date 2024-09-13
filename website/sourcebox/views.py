@@ -71,7 +71,7 @@ def dashboard():
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
         
-        free_token_limit = 500000
+        free_token_limit = 50000000000000000
         #TODO get token usage from the API
         token_count_url = f'{API_URL}/user/token_usage'
         headers = {'Authorization': f'Bearer {token}'}
