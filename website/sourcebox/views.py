@@ -71,8 +71,24 @@ def dashboard():
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
         
-        free_token_limit = 20
-        tokens_used = 12
+        free_token_limit = 500000
+        #TODO get token usage from the API
+        token_count_url = f'{API_URL}/user/token_usage'
+        headers = {'Authorization': f'Bearer {token}'}
+        try:
+            response = requests.get(token_count_url, headers=headers)
+            if response.status_code == 200:
+                token_data = response.json()
+
+                tokens_used = token_data.get('total_tokens')
+            else:
+                print(f"Failed to get token count. Status code: {response.status_code}, Response: {response.text}")
+
+        except requests.RequestException as e:
+            print(f"Error fetching token count: {e}")
+
+
+        
 
         # Ensure the token percentage is properly calculated
         if free_token_limit > 0:

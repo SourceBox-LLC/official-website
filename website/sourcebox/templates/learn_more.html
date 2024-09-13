@@ -3,13 +3,29 @@
 
 <br/>
 <br/>
-
+<style>
+  /*light purple content box color*/
+  .box-color3 {
+    background-color: #eae7fe;
+  }
+  /*highlights top cars on landing page on mouse hover*/
+  .highlighted {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a shadow for highlight effect */
+    transform: scale(1.02); /* Slightly increase size */
+    transition: all 0.3s ease-in-out; /* Make the transform smooth */
+    z-index: 10; /* Ensure the card is above other content */
+  }
+  .card:hover svg {
+    transition: all 0.7s ease-in-out;
+    transform: scale(1.5); /* Scale the SVG to 150% of its size */
+  }
+</style>
 <!-- Section 2 -->
 <div id="section2">
   <h1 align="center">Custom Generative AI made easy</h1>
   <br/>
-  <div class="container bg-white rounded p-4">
-    <h3>No local models? New to LLM's? Don't know where to start? Too many questions? No worries, SourceBox has you covered! It’s easy to feel overwhelmed by new technology, but SourceBox simplifies the process, offering everything you need in one place. Whether you're looking to build AI models from scratch or leverage pre-built services, we've got you covered. Focus on what matters to you, while we handle the complexity of AI.</h3>
+  <div class="container box-color3 rounded p-4 border">
+    <h3 class="border p-3 border-black rounded">No local models? New to LLM's? Don't know where to start? Too many questions? No worries, SourceBox has you covered! It’s easy to feel overwhelmed by new technology, but SourceBox simplifies the process, offering everything you need in one place. Whether you're looking to build AI models from scratch or leverage pre-built services, we've got you covered. Focus on what matters to you, while we handle the complexity of AI.</h3>
   </div>
   <br/>
   <div class="accordion" id="accordionExample1">
@@ -94,8 +110,8 @@
 <div id="section1">
   <h1 align="center">Get More out of generative AI</h1>
   <br/>
-  <div class="container bg-white rounded p-4">
-    <h3>Get more out of generative AI beyond a chatbot! SourceBox embraces both Cloud and Local approaches to Agents, LLM's, and Machine learning solutions. SourceBox aims to provide both cloud services and local solutions. Integrate and query various forms of data with our cloud services or download, customize, and run AI applications and agents locally.</h3>
+  <div class="container box-color3 rounded p-4 border">
+    <h3 class="border p-3 border-black rounded">Get more out of generative AI beyond a chatbot! SourceBox embraces both Cloud and Local approaches to Agents, LLM's, and Machine learning solutions. SourceBox aims to provide both cloud services and local solutions. Integrate and query various forms of data with our cloud services or download, customize, and run AI applications and agents locally.</h3>
   </div>
   <br/>
   <div class="accordion" id="accordionExample2">
@@ -233,5 +249,25 @@
 <br/>
 <br/>
 <br/>
-
+<script>
+  $(document).ready(function() {
+      // Highlight on hover for the container box
+      $('.container.box-color3').hover(
+          function() {
+              // Mouse enters the box area
+              $(this).addClass('highlighted');
+          }, 
+          function() {
+              // Mouse leaves the box area
+              $(this).removeClass('highlighted');
+          }
+      );
+  
+      // Optional: If you want to trigger an event on click
+      $('.container.box-color3').click(function() {
+          // Add any functionality you'd like on click
+          alert("Box clicked!"); // Example action
+      });
+  });
+</script>
 {% endblock %}
