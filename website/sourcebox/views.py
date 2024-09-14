@@ -242,7 +242,38 @@ def rag_api_sentiment():
         return jsonify({"error": str(e)}), 500
 
 
+@views.route('/rag-api-webscrape', methods=['POST'])
+def rag_api_webscrape():
+    try:
+        # Get the base URL of the external web scraping API
+        base_url = 'https://sb-general-llm-api-248b890f970f.herokuapp.com/landing-webscrape-example'
 
+        # Check if the request has JSON content type, otherwise handle form data
+        if request.content_type == 'application/json':
+            data = request.get_json()  # Handle JSON request
+        else:
+            data = request.form  # Handle form data request
+
+        prompt = data.get('prompt')
+
+        # Validate the prompt
+        if not prompt or not isinstance(prompt, str) or not prompt.strip():
+            return jsonify({"error": "Prompt is required"}), 400
+
+        # Prepare the payload to send to the external API
+        payload = {"prompt": prompt}
+
+        # Make a POST request to the external API
+        response = requests.post(base_url, json=payload)
+
+        # Check if the request to the external API was successful
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to get a response from external API", "details": response.text}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 

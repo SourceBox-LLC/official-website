@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const sentimentForm = document.getElementById('sentimentForm');
     const sentimentSubmitBtn = document.getElementById('sentimentSubmitBtn');
+    const scrapeForm = document.getElementById('scrapeForm');
+    const scrapeSubmitBtn = document.getElementById('scrapeSubmitBtn');
     const modalBody = document.getElementById('modalBody');
     const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
 
@@ -71,6 +73,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener for sentimentForm submit button
     sentimentSubmitBtn.addEventListener('click', function() {
         submitForm(sentimentForm, '/rag-api-sentiment');
+    });
+
+    // Event listener for scrapeForm submit button
+    scrapeSubmitBtn.addEventListener('click', function() {
+        submitForm(scrapeForm, '/rag-api-webscrape');
     });
 
     // Confirm submit functionality
