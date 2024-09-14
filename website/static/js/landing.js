@@ -11,52 +11,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const sentimentForm = document.getElementById('sentimentForm');
     const sentimentSubmitBtn = document.getElementById('sentimentSubmitBtn');
     const modalBody = document.getElementById('modalBody');
-    const loadingSpinner = document.getElementById('loadingSpinner'); // Spinner element
-    const responseContent = document.getElementById('responseContent'); // Response content element
     const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
 
-    // Function to handle form submission and API request
-    function submitForm(formData, apiUrl) {
-        const payload = { prompt: formData.get('prompt') };
+    // Create loading spinner HTML
+    const spinnerHTML = `
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <p class="text-center">Processing, please wait...</p>
+    `;
 
-        // Show the modal, spinner, and clear previous content
-        loadingSpinner.style.display = 'block';
-        responseContent.textContent = ''; // Clear previous content
+    // Function to handle form submission and API request
+    function submitForm(form, apiUrl) {
+        const formData = new FormData(form);
+        const prompt = formData.get('prompt'); // Extract the prompt field
+
+        // Ensure the prompt is not empty
+        if (!prompt || prompt.trim() === "") {
+            modalBody.textContent = 'Prompt is required.';
+            submissionModal.show();
+            return;
+        }
+
+        const payload = { prompt: prompt };
+
+        // Show the spinner in the modal and clear previous content
+        modalBody.innerHTML = spinnerHTML;
         submissionModal.show();
 
+        // Send the API request
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload) // Convert FormData to JSON format
         })
         .then(response => response.json())
         .then(data => {
-            // Hide spinner once response is received
-            loadingSpinner.style.display = 'none';
+            // Update modal content based on the API response
             if (data.error) {
-                responseContent.textContent = JSON.stringify(data.error, null, 2);
+                modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                responseContent.textContent = JSON.stringify(data.result, null, 2); // Show result
+                modalBody.textContent = JSON.stringify(data.message || data.result, null, 2); // Display result from the API
             }
         })
         .catch(error => {
-            loadingSpinner.style.display = 'none';
-            responseContent.textContent = 'An error occurred';
+            modalBody.textContent = 'An error occurred while processing the request.';
         });
     }
 
     // Event listener for thropicForm submit button
     submitBtn.addEventListener('click', function() {
-        const formData = new FormData(thropicForm);
-        submitForm(formData, '/rag-api');
+        submitForm(thropicForm, '/rag-api');
     });
 
     // Event listener for sentimentForm submit button
     sentimentSubmitBtn.addEventListener('click', function() {
-        const formData = new FormData(sentimentForm);
-        submitForm(formData, '/sentiment-api');
+        submitForm(sentimentForm, '/rag-api-sentiment');
     });
 
     // Confirm submit functionality

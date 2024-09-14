@@ -210,16 +210,40 @@ def rag_api():
 
 @views.route('/rag-api-sentiment', methods=['POST'])
 def rag_api_sentiment():
-    data = {'user_message': request.form.get('prompt', '')}
-    session = requests.Session()
-    base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
+    try:
+        # Get the base URL of the external sentiment analysis API
+        base_url = 'https://sb-general-llm-api-248b890f970f.herokuapp.com/landing-sentiment-example'
 
-    # Get sentiment response
-    sentiment_response_url = f'{base_url}/sentiment-pipe'
-    response = session.post(sentiment_response_url, json=data)
-    sentiment_response = response.json()
-    print("Sentiment response:", sentiment_response)
-    return jsonify(message=sentiment_response.get('message', 'No message'), error=sentiment_response.get('error'))
+        # Check if the request has JSON content type, otherwise handle form data
+        if request.content_type == 'application/json':
+            data = request.get_json()  # Handle JSON request
+        else:
+            data = request.form  # Handle form data request
+
+        prompt = data.get('prompt')
+
+        # Validate the prompt
+        if not prompt or not isinstance(prompt, str) or not prompt.strip():
+            return jsonify({"error": "Prompt is required"}), 400
+
+        # Prepare the payload to send to the external API
+        payload = {"prompt": prompt}
+
+        # Make a POST request to the external API
+        response = requests.post(base_url, json=payload)
+
+        # Check if the request to the external API was successful
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to get a response from external API", "details": response.text}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
 
 
 # support ticket form
