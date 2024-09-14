@@ -177,8 +177,8 @@ def download_plate(filename):
 @views.route('/rag-api', methods=['POST'])
 def rag_api():
     try:
-        # Get the base URL of the external API
-        base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com/landing-rag-example'
+        # Get the new base URL of the external API
+        base_url = 'https://sb-general-llm-api-248b890f970f.herokuapp.com/landing-rag-example'
 
         # Check if the request has JSON content type, otherwise handle form data
         if request.content_type == 'application/json':
@@ -205,6 +205,7 @@ def rag_api():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @views.route('/rag-api-sentiment', methods=['POST'])

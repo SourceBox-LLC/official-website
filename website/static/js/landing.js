@@ -13,21 +13,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalBody = document.getElementById('modalBody');
     const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
 
+    // Event listener for thropicForm submit button
     submitBtn.addEventListener('click', function() {
         const formData = new FormData(thropicForm);
 
+        // Convert FormData to JSON object for proper API handling
+        const payload = { prompt: formData.get('prompt') };
+
         fetch('/rag-api', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'  // Ensure content is sent as JSON
+            },
+            body: JSON.stringify(payload)  // Convert the FormData into JSON format
         })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = JSON.stringify(data.message, null, 2);
+                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
             }
-            submissionModal.show(); // Show the modal
+            submissionModal.show(); // Show the modal with the response
         })
         .catch(error => {
             modalBody.textContent = 'An error occurred';
@@ -35,21 +42,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Event listener for sentimentForm submit button
     sentimentSubmitBtn.addEventListener('click', function() {
         const formData = new FormData(sentimentForm);
 
-        fetch('/rag-api-sentiment', {
+        // Convert FormData to JSON object for proper API handling
+        const payload = { prompt: formData.get('prompt') };
+
+        fetch('/rag-api', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'  // Ensure content is sent as JSON
+            },
+            body: JSON.stringify(payload)  // Convert the FormData into JSON format
         })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = JSON.stringify(data.message, null, 2);
+                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
             }
-            submissionModal.show(); // Show the modal
+            submissionModal.show(); // Show the modal with the response
         })
         .catch(error => {
             modalBody.textContent = 'An error occurred';
