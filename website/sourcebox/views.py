@@ -352,3 +352,5 @@ def chat_assistant_route():
     assistant_message = chat_completion.choices[0].message.content
     print(assistant_message)
     return jsonify({"message": assistant_message})
+
+
