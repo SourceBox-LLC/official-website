@@ -71,7 +71,7 @@ def dashboard():
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
         
-        free_token_limit = 50000000000000000
+        free_token_limit = 1000000
         #TODO get token usage from the API
         token_count_url = f'{API_URL}/user/token_usage'
         headers = {'Authorization': f'Bearer {token}'}
@@ -176,48 +176,35 @@ def download_plate(filename):
 
 @views.route('/rag-api', methods=['POST'])
 def rag_api():
-    # Initialize the session
-    session = requests.Session()
-    # Define the base URL
-    base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com'
+    try:
+        # Get the base URL of the external API
+        base_url = 'https://sb-general-llm-api-1d86f3b698a2.herokuapp.com/landing-rag-example'
 
-    # 1. Upload the file
-    upload_url = f'{base_url}/upload'
-    file = request.files.get('file')
+        # Check if the request has JSON content type, otherwise handle form data
+        if request.content_type == 'application/json':
+            data = request.get_json()
+        else:
+            data = request.form
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+        prompt = data.get('prompt')
 
-        with open(file_path, 'rb') as f:
-            files = {'file': f}
-            response = session.post(upload_url, files=files)
-            upload_response = response.json()
-            print("Upload response:", upload_response)
+        if not prompt:
+            return jsonify({"error": "Prompt is required"}), 400
 
-        # 2. Retrieve the list of uploaded files
-        retrieve_files_url = f'{base_url}/retrieve-files'
-        response = session.get(retrieve_files_url)
-        retrieve_files_response = response.json()
-        print("Retrieve files response:", retrieve_files_response)
+        # Prepare the payload to send to the external API
+        payload = {"prompt": prompt}
 
-        # 3. Get GPT-3 response
-        gpt_response_url = f'{base_url}/gpt-response'
-        data = {'user_message': 'Explain the content of the uploaded file'}
-        response = session.post(gpt_response_url, json=data)
-        gpt_response = response.json()
-        print("GPT response:", gpt_response)
+        # Make the POST request to the external API
+        response = requests.post(base_url, json=payload)
 
-        # 4. Delete the session and all associated files
-        delete_session_url = f'{base_url}/delete-session'
-        response = session.delete(delete_session_url)
-        delete_session_response = response.json()
-        print("Delete session response:", delete_session_response)
+        # Check if the request was successful
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to get a response from external API", "details": response.text}), response.status_code
 
-        return jsonify(message=gpt_response.get('message', 'No message'), error=gpt_response.get('error'))
-    else:
-        return jsonify(error="Invalid file type"), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @views.route('/rag-api-sentiment', methods=['POST'])
