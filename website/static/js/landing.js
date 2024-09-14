@@ -5,108 +5,91 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     earlyModal.show(); // Show the "You're Early!" modal
 
-    // Existing code for thropicForm and sentimentForm handling
+    // Get references to the forms and buttons
     const thropicForm = document.getElementById('thropicForm');
     const submitBtn = document.getElementById('submitBtn');
     const sentimentForm = document.getElementById('sentimentForm');
     const sentimentSubmitBtn = document.getElementById('sentimentSubmitBtn');
     const modalBody = document.getElementById('modalBody');
+    const loadingSpinner = document.getElementById('loadingSpinner'); // Spinner element
+    const responseContent = document.getElementById('responseContent'); // Response content element
     const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
+
+    // Function to handle form submission and API request
+    function submitForm(formData, apiUrl) {
+        const payload = { prompt: formData.get('prompt') };
+
+        // Show the modal, spinner, and clear previous content
+        loadingSpinner.style.display = 'block';
+        responseContent.textContent = ''; // Clear previous content
+        submissionModal.show();
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide spinner once response is received
+            loadingSpinner.style.display = 'none';
+            if (data.error) {
+                responseContent.textContent = JSON.stringify(data.error, null, 2);
+            } else {
+                responseContent.textContent = JSON.stringify(data.result, null, 2); // Show result
+            }
+        })
+        .catch(error => {
+            loadingSpinner.style.display = 'none';
+            responseContent.textContent = 'An error occurred';
+        });
+    }
 
     // Event listener for thropicForm submit button
     submitBtn.addEventListener('click', function() {
         const formData = new FormData(thropicForm);
-
-        // Convert FormData to JSON object for proper API handling
-        const payload = { prompt: formData.get('prompt') };
-
-        fetch('/rag-api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'  // Ensure content is sent as JSON
-            },
-            body: JSON.stringify(payload)  // Convert the FormData into JSON format
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                modalBody.textContent = JSON.stringify(data.error, null, 2);
-            } else {
-                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
-            }
-            submissionModal.show(); // Show the modal with the response
-        })
-        .catch(error => {
-            modalBody.textContent = 'An error occurred';
-            submissionModal.show(); // Show the modal even if there's an error
-        });
+        submitForm(formData, '/rag-api');
     });
 
     // Event listener for sentimentForm submit button
     sentimentSubmitBtn.addEventListener('click', function() {
         const formData = new FormData(sentimentForm);
+        submitForm(formData, '/sentiment-api');
+    });
 
-        // Convert FormData to JSON object for proper API handling
-        const payload = { prompt: formData.get('prompt') };
+    // Confirm submit functionality
+    document.getElementById('confirmSubmit').addEventListener('click', function() {
+        var form = document.querySelector('form');
+        form.submit(); // Submit the form
+    });
 
-        fetch('/rag-api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'  // Ensure content is sent as JSON
-            },
-            body: JSON.stringify(payload)  // Convert the FormData into JSON format
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                modalBody.textContent = JSON.stringify(data.error, null, 2);
-            } else {
-                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
-            }
-            submissionModal.show(); // Show the modal with the response
-        })
-        .catch(error => {
-            modalBody.textContent = 'An error occurred';
-            submissionModal.show(); // Show the modal even if there's an error
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function() {
+            var filename = this.getAttribute('data-filename');
+            var downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = `/download_plate/${filename}`;
+            var dropdownButton = document.getElementById('dropdownMenuButton');
+            dropdownButton.textContent = this.textContent;
         });
     });
-});
 
-document.getElementById('confirmSubmit').addEventListener('click', function() {
-    var form = document.querySelector('form');
-    form.submit(); // Submit the form
-});
-
-document.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', function() {
-        var filename = this.getAttribute('data-filename');
-        var downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = `/download_plate/${filename}`;
-        var dropdownButton = document.getElementById('dropdownMenuButton');
-        dropdownButton.textContent = this.textContent;
-    });
-});
-
-$(document).ready(function() {
-    // Function to check if the element is in viewport
+    // Check if an element is in the viewport
     function isElementInView(element) {
         var elementTop = $(element).offset().top;
         var elementBottom = elementTop + $(element).outerHeight();
-
         var viewportTop = $(window).scrollTop();
         var viewportBottom = viewportTop + $(window).height();
-
         return elementBottom > viewportTop && elementTop < viewportBottom;
     }
 
-    // Listen for scroll events
+    // Listen for scroll events to trigger animations when elements come into view
     $(window).on('scroll', function() {
-        // Check if the carousel is in view
         if (isElementInView($('#carouselExample'))) {
-            // Add class to fade in
             $('#carouselExample').addClass('fade-in');
         }
-        // Check each invisible section and fade in if in view
         $('.invisible-section').each(function() {
             if (isElementInView($(this))) {
                 $(this).addClass('fade-in');
@@ -114,48 +97,38 @@ $(document).ready(function() {
         });
     });
 
-    // Trigger the scroll event on page load in case the carousel is already in view
+    // Trigger the scroll event on page load
     $(window).scroll();
 
-    // Border appearance on hover for text columns
+    // Hover animations for text columns and cards
     $('.col.fs-4 p').hover(
         function() {
-            // Mouse enters column area
             $(this).addClass('box-color3 fs-3').removeClass('fs-4');
         }, 
         function() {
-            // Mouse leaves column area
             $(this).removeClass('box-color3 fs-3').addClass('fs-4');
         }
     );
 
     $('.card').hover(
         function() {
-            // Mouse enters the card area
             $(this).addClass('highlighted');
         },
         function() {
-            // Mouse leaves the card area
             $(this).removeClass('highlighted');
         }
     );
 
-    // Content highlight
     $('.card.box-color3.rounded-5.border-dark').hover(
         function() {
-            // Mouse enters the card area
             $(this).addClass('highlighted');
         },
         function() {
-            // Mouse leaves the card area
             $(this).removeClass('highlighted');
         }
     );
 
-    $('#confirmSubmit').click(function() {
-        $('form').submit(); // Submit the form
-    });
-
+    // Dropdown item selection and download functionality
     $('.dropdown-item').click(function() {
         var filename = $(this).attr('data-filename');
         var downloadLink = $('#downloadLink');

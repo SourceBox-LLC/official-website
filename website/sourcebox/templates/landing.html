@@ -266,6 +266,7 @@
 
 
 <!--LLM example output model-->
+<!--LLM example output model-->
 <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -274,7 +275,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="modalBody">
-                GPT response content will be displayed here.
+                <!-- Spinner will be displayed here while loading -->
+                <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <!-- Response content will be displayed here -->
+                <div id="responseContent">
+                    GPT response content will be displayed here.
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Sign Up</button>
