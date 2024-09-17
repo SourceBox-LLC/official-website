@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const sentimentSubmitBtn = document.getElementById('sentimentSubmitBtn');
     const scrapeForm = document.getElementById('scrapeForm');
     const scrapeSubmitBtn = document.getElementById('scrapeSubmitBtn');
+    const imageGenForm = document.getElementById('imageGenForm');
+    const imageGenSubmitBtn = document.getElementById('imageGenSubmitBtn');
+    const transcriptSubmitBtn = document.getElementById('transcriptSubmitBtn');
     const modalBody = document.getElementById('modalBody');
     const submissionModal = new bootstrap.Modal(document.getElementById('submissionModal'));
 
@@ -57,7 +60,36 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = JSON.stringify(data.message || data.result, null, 2); // Display result from the API
+                // Check if it is an image generation request to display the image
+                if (apiUrl === '/rag-api-image') {
+                    modalBody.innerHTML = `<img src="${data.result}" alt="Generated Image" class="img-fluid"/>`;
+                } else {
+                    modalBody.textContent = JSON.stringify(data.message || data.result, null, 2); // Display result from the API
+                }
+            }
+        })
+        .catch(error => {
+            modalBody.textContent = 'An error occurred while processing the request.';
+        });
+    }
+
+    // Function to handle GET request for transcription
+    function submitTranscriptRequest() {
+        // Show the spinner in the modal and clear previous content
+        modalBody.innerHTML = spinnerHTML;
+        submissionModal.show();
+
+        // Send the GET request to the transcription API
+        fetch('/rag-api-transcript', {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update modal content based on the API response
+            if (data.error) {
+                modalBody.textContent = JSON.stringify(data.error, null, 2);
+            } else {
+                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
             }
         })
         .catch(error => {
@@ -78,6 +110,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener for scrapeForm submit button
     scrapeSubmitBtn.addEventListener('click', function() {
         submitForm(scrapeForm, '/rag-api-webscrape');
+    });
+
+    // Event listener for imageGenForm submit button
+    imageGenSubmitBtn.addEventListener('click', function() {
+        submitForm(imageGenForm, '/rag-api-image');
+    });
+
+    // Event listener for transcriptForm submit button (GET request)
+    transcriptSubmitBtn.addEventListener('click', function() {
+        submitTranscriptRequest();
     });
 
     // Confirm submit functionality

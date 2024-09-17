@@ -332,9 +332,9 @@
                                         Choose File
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <li><button class="dropdown-item" type="button" data-filename="llama_console.py">llama-index console</button></li>
-                                        <li><button class="dropdown-item" type="button" data-filename="file2">Another action</button></li>
-                                        <li><button class="dropdown-item" type="button" data-filename="file3">Something else here</button></li>
+                                        <li><button class="dropdown-item" type="button" data-filename="vanilla_gpt">Vanilla GPT</button></li>
+                                        <li><button class="dropdown-item" type="button" data-filename="vanilla_claud">Vanilla Claud</button></li>
+                                        <li><button class="dropdown-item" type="button" data-filename="pc_scanner">PC Monitor</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -408,10 +408,7 @@
                     <div class="col-md-8 offset-md-2">
                         <div class="p-5 mb-4 rounded-3 border border-dark box-color2">
                             <form id="transcriptForm" method="POST" enctype="multipart/form-data" action="/rag-api-transcript">
-                                <div class="form-group">
-                                    <label for="prompt"></label>
-                                    <input type="text" id="prompt" name="prompt" class="form-control" placeholder="enter prompt"/>
-                                </div>
+                                <h3 align="center"><a href="#">audio.wav</a></h3>
                                 <br/>
                                 <button type="button" class="btn btn-danger" id="transcriptSubmitBtn" data-bs-toggle="modal" data-bs-target="#submissionModal">Submit</button>
                             </form>

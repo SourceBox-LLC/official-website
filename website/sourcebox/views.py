@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, session, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, session, jsonify, send_from_directory
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 import os, requests
@@ -9,6 +9,8 @@ import smtplib
 import logging
 from openai import OpenAI
 from dotenv import load_dotenv
+import shutil, tempfile, subprocess
+
 
 load_dotenv()
 
@@ -163,16 +165,75 @@ def premium_info():
     return render_template('premium_info.html')
 
 # Download boilerplate landing.html example
-DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'SourceLightning')
 @views.route('/download_plate/<filename>')
 def download_plate(filename):
-    # Prevent directory traversal vulnerability
-    safe_path = safe_join(DOWNLOAD_DIRECTORY, filename)
-    # Check if the file exists
-    if not os.path.isfile(safe_path):
-        abort(404)
-    # Serve the file for download
-    return send_from_directory(DOWNLOAD_DIRECTORY, filename, as_attachment=True)
+
+    def clone_and_zip_repo(REPO_URL, repo_name):
+        # Get the current working directory
+        cwd = os.getcwd()
+        
+        # Create a temporary directory in the current working directory
+        temp_dir = tempfile.mkdtemp(dir=cwd)
+        print(f"Cloning repository to temporary folder in CWD: {temp_dir}")
+        
+        try:
+            # Clone the repository using subprocess
+            subprocess.run(["git", "clone", REPO_URL, temp_dir], check=True)
+            print(f"Repository successfully cloned to {temp_dir}")
+            
+            # Create a parent folder in the temp directory named after the repo
+            parent_folder_name = f"{repo_name}_repo"
+            parent_folder_path = os.path.join(temp_dir, parent_folder_name)
+            os.makedirs(parent_folder_path)
+            
+            # Move the cloned repo contents into the parent folder
+            for item in os.listdir(temp_dir):
+                item_path = os.path.join(temp_dir, item)
+                if item != parent_folder_name:  # Skip the parent folder itself
+                    shutil.move(item_path, parent_folder_path)
+            
+            # Create a zip file from the parent folder
+            zip_filename = os.path.join(cwd, f'{parent_folder_name}.zip')
+            shutil.make_archive(zip_filename.replace('.zip', ''), 'zip', temp_dir, parent_folder_name)
+            print(f"Repository successfully zipped at {zip_filename}")
+            
+            return zip_filename
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning repository: {e}")
+            return None
+        finally:
+            # Clean up the temporary directory
+            shutil.rmtree(temp_dir)
+            print(f"Temporary directory {temp_dir} has been removed.")
+
+
+    def serve_repo(REPO_URL, repo_name):
+        # Clone and zip the repo, then get the zip file path
+        zip_file_path = clone_and_zip_repo(REPO_URL, repo_name)
+            
+        if zip_file_path and os.path.exists(zip_file_path):
+            # Store the zip file path in the request context for deletion later
+            request.zip_file_path = zip_file_path
+                
+            # Serve the zip file to the user for download
+            return send_from_directory(os.path.dirname(zip_file_path), os.path.basename(zip_file_path), as_attachment=True)
+        else:
+            abort(500, description="Error cloning or zipping the repository")
+    
+    PC_SCANNER_REPO = "https://github.com/SourceBox-LLC/SourceLighting-PC-scannerApp.git"
+    VANILLA_GPT_REPO = "https://github.com/SourceBox-LLC/SourceLightning-Vanilla-GPT.git"
+    VANILLA_CLAUD_REPO = "https://github.com/SourceBox-LLC/SourceLightning-Vanilla-Claude.git"
+
+    if filename == "pc_scanner":
+        return serve_repo(PC_SCANNER_REPO, "pc_scanner")
+    elif filename == "vanilla_gpt":
+        return serve_repo(VANILLA_GPT_REPO, "vanilla_gpt")
+    elif filename == "vanilla_claud":
+        return serve_repo(VANILLA_CLAUD_REPO, "vanilla_claud")
+    else:
+        abort(404, description="Repository not found")
+
+
 
 @views.route('/rag-api', methods=['POST'])
 def rag_api():
@@ -275,6 +336,57 @@ def rag_api_webscrape():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@views.route('/rag-api-image', methods=['POST'])
+def image_generation():
+    try:
+        # Get the base URL of the external image generation API
+        base_url = 'https://sb-general-llm-api-248b890f970f.herokuapp.com/landing-imagegen-example'
+
+        # Check if the request has JSON content type, otherwise handle form data
+        if request.content_type == 'application/json':
+            data = request.get_json()  # Handle JSON request
+        else:
+            data = request.form  # Handle form data request
+
+        prompt = data.get('prompt')
+
+        # Validate the prompt
+        if not prompt or not isinstance(prompt, str) or not prompt.strip():
+            return jsonify({"error": "Prompt is required"}), 400
+
+        # Prepare the payload to send to the external API
+        payload = {"prompt": prompt}
+
+        # Make a POST request to the external API
+        response = requests.post(base_url, json=payload)
+
+        # Check if the request to the external API was successful
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to get a response from external API", "details": response.text}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@views.route('/rag-api-transcript', methods=['GET'])
+def audio_transcript():
+    try:
+        # Define the URL for the existing transcription resource
+        base_url = 'https://sb-general-llm-api-248b890f970f.herokuapp.com/landing-transcript-example'
+
+        # Make the GET request to the transcription resource
+        response = requests.get(base_url)
+
+        # Check if the request to the external API was successful
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Failed to get a response from transcription resource", "details": response.text}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # support ticket form
