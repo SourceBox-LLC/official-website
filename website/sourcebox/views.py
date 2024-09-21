@@ -129,7 +129,33 @@ def updates():
 @token_required
 def content():
     record_user_history("entered content")
-    return render_template('content.html')
+
+    # Fetch the access token from the session
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID first
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    premium_response = requests.get(premium_status_url, headers=headers)
+    
+    if premium_response.status_code == 200:
+        premium_data = premium_response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False  # Default to non-premium if there's an issue
+
+    # Render the content page and pass the premium status
+    return render_template('content.html', is_premium=is_premium)
+
 
 @views.route('/content/wikidoc')
 @token_required
@@ -234,7 +260,32 @@ def documentation():
 @token_required
 def user_settings():
     record_user_history("entered settings")
-    return render_template('user_settings.html')
+
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    response = requests.get(premium_status_url, headers=headers)
+    if response.status_code == 200:
+        premium_data = response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False  # Default to non-premium if there's an issue
+
+    return render_template('user_settings.html', is_premium=is_premium)
+
+
+
 
 @views.route('/premium_info')
 def premium_info():
