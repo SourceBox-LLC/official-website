@@ -78,7 +78,18 @@ def imagen():
     return redirect("https://sourcebox-imagen-8a638799d89b.herokuapp.com") # link to imagen stand alone app
 
 
+@service.route('/service/videogen')
+@token_required
+def videogen():
+    record_user_history("entered videogen")
+    return "Welcome to videogen, this service is currently under construction. Since you are a premium subscriber you get to be the first to try it out!"
 
+
+@service.route('/service/u-studio')
+@token_required
+def u_studio():
+    record_user_history("entered u-studio")
+    return "Welcome to u-studio, this service is currently under construction. Since you are a premium subscriber you get to be the first to try it out!"
 
 
 

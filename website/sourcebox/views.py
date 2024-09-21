@@ -158,6 +158,73 @@ def launch_imagen():
     return redirect(url_for('service.imagen'))
 
 
+@views.route('/content/videogen')
+@token_required
+def launch_videogen():
+    # Fetch the token from the session
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    response = requests.get(premium_status_url, headers=headers)
+    if response.status_code == 200:
+        premium_data = response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False
+
+    # Allow access only if the user is premium
+    if is_premium:
+        return redirect(url_for('service.videogen'))
+    else:
+        flash('Access to VideoGen is only available to premium members. Learn more about premium benefits.', 'warning')
+        return redirect(url_for('views.premium_info'))
+
+
+@views.route('/content/u-studio')
+@token_required
+def launch_u_studio():
+    # Fetch the token from the session
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    response = requests.get(premium_status_url, headers=headers)
+    if response.status_code == 200:
+        premium_data = response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False
+
+    # Allow access only if the user is premium
+    if is_premium:
+        return redirect(url_for('service.u_studio'))
+    else:
+        flash('Access to U-Studio is only available to premium members. Learn more about premium benefits.', 'warning')
+        return redirect(url_for('views.premium_info'))
+
+
+
 @views.route('/docs')
 def documentation():
     record_user_history("entered docs")
