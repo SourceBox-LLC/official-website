@@ -5,18 +5,21 @@
 <p align="center">Welcome {{ current_user.username }}!</p>
 <br/>
 
+<!-- If user is not a premium member, display this card -->
+{% if not is_premium %}
 <div class="card">
     <div class="card-header box-color2">
       Featured
     </div>
     <div class="card-body box-color3">
-      <h4 class="card-title">Premium coming soon</h4>
+      <h4 class="card-title">Get more bang for your tokens!</h4>
       <br/>
-      <p class="card-text">Get details about the upcoming premium offerings.</p>
+      <p class="card-text">Learn more about premium and sign up here!</p>
       <hr/>
       <a href="/premium_info" class="btn btn-primary">Info</a>
     </div>
 </div>
+{% endif %}
 
 <div>
   <br/>
@@ -24,6 +27,9 @@
   <h1 align="center">Recent Activity</h1>
   <br/>
   <br/>
+
+  <!-- If the user is not premium, display token usage and purchase options -->
+  {% if not is_premium %}
   <!-- Token usage progress bar -->
   <div class="progress" style="height: 30px; width: 70%; margin: 0 auto;">
     <div id="tokenProgressBar" class="progress-bar bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100">
@@ -32,15 +38,20 @@
   </div>
 
   <p align="center">You have {{ free_token_limit - tokens_used }} tokens remaining. Get unlimited with <a href="/premium_info">premium</a></p>
-  <p align="center">Don't want premium? pay as you go <a href="#">Here</a></p>
+  <p align="center">Don't want premium? Pay as you go <a href="#">Here</a></p>
+  
+  {% else %}
+  <!-- If the user is premium, show no token limit message -->
+  <p align="center">No limits for you! You have unlimited tokens. Thank you for supporting better and new features for everyone!</p>
+  {% endif %}
 
   <br/>
   <br/>
-  <!--TODO: dynamicaly display recent activity-->
-  <br/>
+  
+  <!-- Recent activity section -->
   <div class="row container-fluid">
-  {% for item in last_5_history_items %}
-    {% if item.action == "entered wikidoc" %}
+    {% for item in last_5_history_items %}
+      {% if item.action == "entered wikidoc" %}
       <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
@@ -52,7 +63,7 @@
           </div>
         </div>
       </div>
-    {% elif item.action == "entered codedoc" %}
+      {% elif item.action == "entered codedoc" %}
       <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
@@ -64,7 +75,7 @@
           </div>
         </div>
       </div>
-    {% elif item.action == "entered source-lightning" %}
+      {% elif item.action == "entered source-lightning" %}
       <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
@@ -78,7 +89,7 @@
           </div>
         </div>
       </div>
-    {% elif item.action == "entered pack-man" %}
+      {% elif item.action == "entered pack-man" %}
       <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
@@ -92,7 +103,7 @@
           </div>
         </div>
       </div>
-    {% elif item.action == "entered source-mail" %}
+      {% elif item.action == "entered source-mail" %}
       <div class="col container col-md-4">
         <div class="card box-color3 border border-dark rounded-5">
           <div class="card-body">
@@ -104,10 +115,10 @@
           </div>
         </div>
       </div>
-    {% endif %}
-  {% else %}
-    <p>No recent activity found.</p>
-  {% endfor %}
+      {% endif %}
+    {% else %}
+      <p>No recent activity found.</p>
+    {% endfor %}
   </div>
 </div>
 <br/>

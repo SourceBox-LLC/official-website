@@ -52,11 +52,29 @@ def learn_more():
 def dashboard():
     record_user_history("entered dashboard")
 
-
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
-    response = requests.get(f"{API_URL}/user_history", headers=headers)
 
+    # Fetch the user ID first
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    response = requests.get(premium_status_url, headers=headers)
+    if response.status_code == 200:
+        premium_data = response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False  # Default to non-premium if there's an issue
+
+    # Fetch user history
+    response = requests.get(f"{API_URL}/user_history", headers=headers)
     if response.status_code == 200:
         all_history_items = response.json()
 
@@ -68,41 +86,32 @@ def dashboard():
                 unique_filtered_items.append(item)
                 seen_actions.add(item['action'])
 
-        # Now unique_filtered_items contains unique items by action, 
-        # but you might want to limit to the last 5 unique items if the list is too long
+        # Now unique_filtered_items contains unique items by action
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
-        
+
+        # Token usage logic
         free_token_limit = 1000000
-        #TODO get token usage from the API
         token_count_url = f'{API_URL}/user/token_usage'
-        headers = {'Authorization': f'Bearer {token}'}
-        try:
-            response = requests.get(token_count_url, headers=headers)
-            if response.status_code == 200:
-                token_data = response.json()
+        response = requests.get(token_count_url, headers=headers)
+        tokens_used = response.json().get('total_tokens', 0)
 
-                tokens_used = token_data.get('total_tokens')
-            else:
-                print(f"Failed to get token count. Status code: {response.status_code}, Response: {response.text}")
+        token_percentage_used = (tokens_used / free_token_limit) * 100 if free_token_limit > 0 else 0
 
-        except requests.RequestException as e:
-            print(f"Error fetching token count: {e}")
-
-
-        
-
-        # Ensure the token percentage is properly calculated
-        if free_token_limit > 0:
-            token_percentage_used = (tokens_used / free_token_limit) * 100
-        else:
-            token_percentage_used = 0
-        
-
-        return render_template('dashboard.html', last_5_history_items=unique_filtered_items, free_token_limit=free_token_limit, tokens_used=tokens_used, token_percentage_used=token_percentage_used)
+        # Pass the premium status and token usage data to the template
+        return render_template(
+            'dashboard.html',
+            is_premium=is_premium,
+            last_5_history_items=unique_filtered_items,
+            free_token_limit=free_token_limit,
+            tokens_used=tokens_used,
+            token_percentage_used=token_percentage_used
+        )
     else:
         flash('Failed to retrieve user history', 'error')
         return redirect(url_for('views.landing'))
+
+
 
 @views.route('/updates')
 @token_required
