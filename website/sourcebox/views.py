@@ -11,7 +11,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import shutil, tempfile, subprocess
 
-
 load_dotenv()
 
 
@@ -286,10 +285,11 @@ def user_settings():
 
 
 
-
 @views.route('/premium_info')
 def premium_info():
     return render_template('premium_info.html')
+
+
 
 # Download boilerplate landing.html example
 @views.route('/download_plate/<filename>')
