@@ -42,15 +42,16 @@ def stripe_webhook():
 
         # Fetch the user ID using the correct method (GET)
         headers = {'Authorization': f'Bearer {session.get("access_token")}'}
-        user_id_url = f"{API_URL}/users/search"
-
-        # Use GET request instead of POST
-        response = requests.get(user_id_url, params={'email': customer_email}, headers=headers)
+        user_search_url = f"{API_URL}/users/search"
+        
+        # Use GET request with query parameters to search by email
+        response = requests.get(user_search_url, params={'email': customer_email}, headers=headers)
 
         if response.status_code == 200:
-            user_id = response.json().get('user_id')
+            user_data = response.json()
+            user_id = user_data.get('id')
             if user_id:
-                # Update the user's premium status using the correct endpoint
+                # Grant premium status using the correct endpoint
                 user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
                 grant_response = requests.put(user_update_url, headers=headers)
 
