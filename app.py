@@ -15,6 +15,7 @@ API_URL = os.getenv('API_URL')
 
 
 # webhook endpoint for handling Stripe events
+# Your webhook endpoint for handling Stripe events
 @app.route('/stripe/webhook', methods=['POST'])
 def stripe_webhook():
     payload = request.get_data(as_text=True)
@@ -39,12 +40,12 @@ def stripe_webhook():
         session_data = event['data']['object']
         customer_email = session_data['customer_details']['email']
 
-        # Fetch the user ID from the API based on the customer's email
+        # Fetch the user ID using the correct method (GET)
         headers = {'Authorization': f'Bearer {session.get("access_token")}'}
         user_id_url = f"{API_URL}/users/search"
-        
-        # Search for the user based on their email
-        response = requests.post(user_id_url, json={'email': customer_email}, headers=headers)
+
+        # Use GET request instead of POST
+        response = requests.get(user_id_url, params={'email': customer_email}, headers=headers)
 
         if response.status_code == 200:
             user_id = response.json().get('user_id')
@@ -63,6 +64,7 @@ def stripe_webhook():
             print(f"Failed to retrieve user ID for {customer_email}: {response.text}")
 
     return jsonify({'status': 'success'}), 200
+
 
 
 
