@@ -29,6 +29,7 @@ packaging==24.1
 pycparser==2.22
 pydantic==2.8.2
 pydantic_core==2.20.1
+PyJWT==2.9.0
 python-dotenv==1.0.1
 requests==2.32.3
 setuptools==69.0.3

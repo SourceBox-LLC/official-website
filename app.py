@@ -1,11 +1,11 @@
-import jwt
-from datetime import datetime, timedelta
 from website import create_app
 from flask import Flask, request, jsonify
 import os
+from dotenv import load_dotenv
 import requests
 import stripe
-from dotenv import load_dotenv
+import jwt as pyjwt  # Import PyJWT under an alias
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -14,10 +14,10 @@ app = create_app()
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 API_URL = os.getenv('API_URL')
 
+
 # Generate an internal JWT token for API calls
 def generate_internal_jwt():
-    # Adjust the expiration time and payload as necessary
-    return jwt.encode({
+    return pyjwt.encode({
         'exp': datetime.utcnow() + timedelta(hours=1),
         'iat': datetime.utcnow(),
         'sub': 'internal_service'
@@ -44,7 +44,7 @@ def stripe_webhook():
         # Invalid signature
         return jsonify({'error': 'Invalid signature'}), 400
 
-    # Handle the checkout.session.completed event
+    # Handle the event type
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
         customer_email = session_data['customer_details']['email']
@@ -54,14 +54,14 @@ def stripe_webhook():
         headers = {'Authorization': f'Bearer {internal_jwt}'}
 
         user_search_url = f"{API_URL}/users/search"
-        
+
         # Search for the user using the email
         response = requests.get(user_search_url, params={'email': customer_email}, headers=headers)
 
         if response.status_code == 200:
             user_data = response.json()
             user_id = user_data.get('id')
-            
+
             if user_id:
                 # Grant premium status using the /premium/grant endpoint
                 user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
