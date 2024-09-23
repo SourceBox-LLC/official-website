@@ -286,8 +286,36 @@ def user_settings():
 
 
 @views.route('/premium_info')
+@token_required
 def premium_info():
-    return render_template('premium_info.html')
+    # Fetch the token from the session
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.landing'))
+
+    # Check if the user is a premium member
+    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+    response = requests.get(premium_status_url, headers=headers)
+    if response.status_code == 200:
+        premium_data = response.json()
+        is_premium = premium_data.get('premium_status', False)
+    else:
+        is_premium = False
+
+    # Redirect to the dashboard if the user is already premium
+    if is_premium:
+        return redirect(url_for('views.dashboard'))
+    else:
+        return render_template('premium_info.html')
+
 
 
 
