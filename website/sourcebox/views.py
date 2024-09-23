@@ -294,7 +294,7 @@ def premium_unsubscribe():
 
 
 # confirmed premium unsubscribe
-# confirmed premium unsubscribe
+# Confirmed premium unsubscribe
 @views.route('/premium_unsubscribe_confirm', methods=['POST'])
 @token_required
 def premium_unsubscribe_confirm():
