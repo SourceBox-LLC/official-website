@@ -297,57 +297,68 @@ def premium_unsubscribe():
 @views.route('/premium_unsubscribe_confirm', methods=['POST'])
 @token_required
 def premium_unsubscribe_confirm():
+    logger.info("Premium unsubscribe process started.")
+    
     # Get the user's token from the session
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
     # Fetch the user ID from your API
     user_id_url = f"{API_URL}/user/id"
-    user_id_response = requests.get(user_id_url, headers=headers)
-
-    if user_id_response.status_code == 200:
+    try:
+        user_id_response = requests.get(user_id_url, headers=headers)
+        user_id_response.raise_for_status()  # Raises an exception for 4xx/5xx status codes
         user_id = user_id_response.json().get('user_id')
-    else:
+        logger.info(f"Successfully retrieved user ID: {user_id}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error retrieving user ID: {e}")
         flash('Failed to retrieve user ID', 'error')
         return redirect(url_for('views.user_settings'))
 
     # Get the Stripe subscription ID from your API
     stripe_subscription_url = f"{API_URL}/user/{user_id}/stripe_subscription"
-    stripe_response = requests.get(stripe_subscription_url, headers=headers)
-
-    if stripe_response.status_code == 200:
+    try:
+        stripe_response = requests.get(stripe_subscription_url, headers=headers)
+        stripe_response.raise_for_status()
         stripe_subscription_id = stripe_response.json().get('stripe_subscription_id')
-
-        # Ensure the stripe_subscription_id is a string
-        if isinstance(stripe_subscription_id, str) and stripe_subscription_id:
-            # Cancel the Stripe subscription at the end of the billing cycle
-            try:
-                stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-                stripe.Subscription.modify(
-                    stripe_subscription_id,
-                    cancel_at_period_end=True  # Cancel at the end of the billing cycle
-                )
-                flash('Your subscription has been canceled. Premium access will continue until the end of the billing period.', 'success')
-
-                # Remove premium status via your API
-                remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
-                response = requests.put(remove_premium_url, headers=headers)
-
-                if response.status_code == 200:
-                    flash('Your premium status has been updated.', 'success')
-                else:
-                    flash('Failed to update your premium status. Please try again later.', 'error')
-            except stripe.error.StripeError as e:
-                logger.error(f"Stripe error: {e}")
-                flash('Failed to cancel your Stripe subscription. Please contact support.', 'error')
-                return redirect(url_for('views.user_settings'))
-        else:
-            flash('Invalid Stripe subscription ID. Please contact support.', 'error')
-            return redirect(url_for('views.user_settings'))
-    else:
+        logger.info(f"Retrieved Stripe subscription ID: {stripe_subscription_id}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error retrieving Stripe subscription ID: {e}")
         flash('Failed to retrieve your Stripe subscription. Please contact support.', 'error')
         return redirect(url_for('views.user_settings'))
 
+    # Ensure the stripe_subscription_id is valid
+    if isinstance(stripe_subscription_id, str) and stripe_subscription_id:
+        # Cancel the Stripe subscription at the end of the billing cycle
+        try:
+            stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+            logger.info(f"Attempting to cancel Stripe subscription with ID: {stripe_subscription_id}")
+            stripe.Subscription.modify(
+                stripe_subscription_id,
+                cancel_at_period_end=True  # Cancel at the end of the billing cycle
+            )
+            flash('Your subscription has been canceled. Premium access will continue until the end of the billing period.', 'success')
+
+            # Remove premium status via your API
+            remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
+            try:
+                response = requests.put(remove_premium_url, headers=headers)
+                response.raise_for_status()
+                logger.info(f"Premium status successfully removed for user ID: {user_id}")
+                flash('Your premium status has been updated.', 'success')
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Error removing premium status: {e}")
+                flash('Failed to update your premium status. Please try again later.', 'error')
+        except stripe.error.StripeError as e:
+            logger.error(f"Stripe error when canceling subscription: {e}")
+            flash('Failed to cancel your Stripe subscription. Please contact support.', 'error')
+            return redirect(url_for('views.user_settings'))
+    else:
+        logger.error(f"Invalid Stripe subscription ID for user {user_id}: {stripe_subscription_id}")
+        flash('Invalid Stripe subscription ID. Please contact support.', 'error')
+        return redirect(url_for('views.user_settings'))
+
+    logger.info("Successfully processed premium unsubscribe for user.")
     # Redirect the user to the dashboard
     return redirect(url_for('views.dashboard'))
 
