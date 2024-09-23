@@ -48,12 +48,11 @@ def stripe_webhook():
         logger.error("Unexpected error while processing webhook.", exc_info=True)
         return jsonify({'error': 'Unexpected error'}), 500
 
-    # Handle the checkout session completed event (grant premium status and store subscription ID)
+    # Handle the checkout session completed event (grant premium status)
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
         customer_email = session_data.get('customer_details', {}).get('email')
         subscription_id = session_data.get('subscription')
-
         logger.info(f"Checkout session completed for {customer_email} with subscription ID {subscription_id}.")
 
         if customer_email and subscription_id:
@@ -62,9 +61,9 @@ def stripe_webhook():
             except Exception as e:
                 logger.error(f"Error granting premium status and storing subscription ID for {customer_email}: {e}", exc_info=True)
         else:
-            logger.error("Checkout session completed but missing customer email or subscription ID.")
+            logger.error("Checkout session completed but customer email or subscription ID is missing.")
 
-    # Handle the subscription deleted event (remove premium status and clear subscription ID)
+    # Handle the subscription deleted event (remove premium status)
     elif event['type'] == 'customer.subscription.deleted':
         subscription_data = event['data']['object']
         customer_email = subscription_data.get('customer_email')
@@ -72,59 +71,61 @@ def stripe_webhook():
 
         if customer_email:
             try:
-                remove_premium_status_and_clear_subscription(customer_email)
+                remove_premium_status_by_email(customer_email)
             except Exception as e:
-                logger.error(f"Error removing premium status and clearing subscription ID for {customer_email}: {e}", exc_info=True)
+                logger.error(f"Error removing premium status for {customer_email}: {e}", exc_info=True)
         else:
             logger.error("Subscription canceled but customer email is missing.")
     
     logger.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
 
-
-# Function to grant premium status and store the subscription ID
+# Function to grant premium status and store subscription ID in the database
 def grant_premium_status_and_store_subscription(customer_email, subscription_id):
-    logger.info(f"Granting premium status and storing subscription ID for {customer_email}.")
+    logger.info(f"Attempting to grant premium status and store subscription ID for {customer_email}.")
 
-    # Call the API to grant premium status and store subscription ID using the user's email
-    grant_premium_url = f"{API_URL}/user/premium/grant_by_email"
-    subscription_url = f"{API_URL}/user/stripe/subscription"
-
+    # Call the API to get the user ID based on email
+    get_user_id_url = f"{API_URL}/users/search"
     try:
-        # Grant premium status
+        # Search user by email
+        user_response = requests.get(get_user_id_url, params={'email': customer_email})
+        user_response.raise_for_status()
+        user_data = user_response.json()
+
+        user_id = user_data.get('id')
+        if not user_id:
+            logger.error(f"User with email {customer_email} not found.")
+            return
+
+        # Grant premium status using the user's email
+        grant_premium_url = f"{API_URL}/user/premium/grant_by_email"
         response = requests.put(grant_premium_url, json={'email': customer_email})
-        response.raise_for_status()
+        response.raise_for_status()  # Raise error if the request was unsuccessful
         logger.info(f"Premium status successfully granted for {customer_email}.")
 
-        # Store subscription ID
-        response = requests.put(subscription_url, json={'email': customer_email, 'stripe_subscription_id': subscription_id})
-        response.raise_for_status()
-        logger.info(f"Subscription ID {subscription_id} successfully stored for {customer_email}.")
-        
+        # Store Stripe subscription ID using the user's ID
+        set_subscription_url = f"{API_URL}/user/{user_id}/stripe/subscription"
+        subscription_response = requests.put(set_subscription_url, json={'stripe_subscription_id': subscription_id})
+        subscription_response.raise_for_status()  # Raise error if the request was unsuccessful
+        logger.info(f"Subscription ID {subscription_id} stored for user {customer_email} (ID: {user_id}).")
+
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to grant premium status or store subscription ID for {customer_email}: {e}", exc_info=True)
 
-# Function to remove premium status and clear the subscription ID
-def remove_premium_status_and_clear_subscription(customer_email):
-    logger.info(f"Removing premium status and clearing subscription ID for {customer_email}.")
+# Function to remove premium status when a subscription is canceled
+def remove_premium_status_by_email(customer_email):
+    logger.info(f"Attempting to remove premium status for {customer_email}.")
 
-    # Call the API to remove premium status and clear subscription ID using the user's email
+    # Call the API to remove premium status using the user's email
     remove_premium_url = f"{API_URL}/user/premium/remove_by_email"
-    clear_subscription_url = f"{API_URL}/user/stripe/cancel_subscription"
-
     try:
-        # Remove premium status
         response = requests.put(remove_premium_url, json={'email': customer_email})
-        response.raise_for_status()
-        logger.info(f"Premium status successfully removed for {customer_email}.")
+        response.raise_for_status()  # Raise error if the request was unsuccessful
 
-        # Clear subscription ID
-        response = requests.put(clear_subscription_url, json={'email': customer_email})
-        response.raise_for_status()
-        logger.info(f"Subscription ID cleared for {customer_email}.")
-        
+        logger.info(f"Premium status successfully removed for {customer_email}.")
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to remove premium status or clear subscription ID for {customer_email}: {e}", exc_info=True)
+        logger.error(f"Failed to remove premium status for {customer_email}. Response: {e}", exc_info=True)
+
 
 
 if __name__ == '__main__':
