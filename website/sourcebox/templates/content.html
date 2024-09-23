@@ -5,13 +5,15 @@
 <br/>
 <h1 align="center">SourceBox Services</h1>
 <br/>
-<img src="{{ url_for('static', filename='images/sourcebox_logo.png') }}" alt="SourceBox Logo" class="img-fluid rounded-5">
-<br/>
 {% if is_premium %}
 <p align="center">Thank you for your support! Thanks to you there is more to come!</p>
 {% else %}
 <p align="center">Get more out of SourceBox with <a href="/premium_info">premium</a></p>
 {% endif %}
+
+<img align="center" src="{{ url_for('static', filename='images/sourcebox-logo.webp') }}"
+alt="SourceBox Logo" class="img-fluid rounded-5" style="width: 200px; height: auto;">
+<br/>
 <br/>
 <div class="row">
     <div class="col-sm-6">
