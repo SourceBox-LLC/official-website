@@ -283,6 +283,43 @@ def user_settings():
 
     return render_template('user_settings.html', is_premium=is_premium)
 
+# premium unsubscribe page
+@views.route('/premium_unsubscribe', methods=['GET', 'POST'])
+@token_required
+def premium_unsubscribe():
+    return render_template('premium_unsubscribe.html')
+
+
+# confirmed premium unsubscribe
+@views.route('/premium_unsubscribe_confirm', methods=['POST'])
+@token_required
+def premium_unsubscribe_confirm():
+    # Get the user's token from the session
+    token = session.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+
+    # Fetch the user ID
+    user_id_url = f"{API_URL}/user/id"
+    user_id_response = requests.get(user_id_url, headers=headers)
+
+    if user_id_response.status_code == 200:
+        user_id = user_id_response.json().get('user_id')
+    else:
+        flash('Failed to retrieve user ID', 'error')
+        return redirect(url_for('views.user_settings'))
+
+    # Remove premium status via API
+    remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
+    response = requests.put(remove_premium_url, headers=headers)
+
+    if response.status_code == 200:
+        flash('Your premium subscription has been cancelled.', 'success')
+    else:
+        flash('Failed to cancel premium subscription. Please try again later.', 'error')
+
+    # Redirect the user to the dashboard after confirming the unsubscribe
+    return redirect(url_for('views.dashboard'))
+
 
 
 @views.route('/premium_info')

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Unsubscribe from Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card box-color3 border border-dark p-4 rounded-5">
+                <div class="card-body">
+                    <h3 class="card-title text-center text-danger">Are you sure you want to unsubscribe?</h3>
+                    <p class="card-text text-center">
+                        We noticed that you're about to cancel your Premium subscription. 
+                        Before you go, here are a few things you might miss out on:
+                    </p>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item">✔ Access to exclusive SourceBox tools and features</li>
+                        <li class="list-group-item">✔ First to try out new tools and features</li>
+                        <li class="list-group-item">✔ Priority support and faster response times</li>
+                        <li class="list-group-item">✔ Unlimited storage and file processing power</li>
+                        <li class="list-group-item">✔ AWS data backups</li>
+                    </ul>
+                    <p class="text-center">
+                        By unsubscribing, you will lose access to all these benefits and revert to a standard account. 
+                        Would you like to reconsider? Maybe take advantage of our <strong>20% discount</strong> for annual subscriptions!
+                    </p>
+                    <div class="text-center mb-4">
+                        <button class="btn btn-outline-success rounded-5" data-bs-toggle="modal" data-bs-target="#stayModal">
+                            Stay with Premium
+                        </button>
+                        <button class="btn btn-outline-danger rounded-5" data-bs-toggle="modal" data-bs-target="#unsubscribeModal">
+                            Yes, Unsubscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal to Stay Premium -->
+    <div class="modal fade" id="stayModal" tabindex="-1" aria-labelledby="stayModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="stayModalLabel">Great choice!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Thank you for choosing to stay with us! We’re committed to providing you with the best tools and support to succeed with SourceBox.</p>
+                    <p>Enjoy uninterrupted access to all Premium features, and keep an eye on your inbox for special rewards and discounts!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary rounded-5" data-bs-dismiss="modal">Close</button>
+                    <a href="/dashboard" class="btn btn-success rounded-5">Return to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal to Confirm Unsubscribe -->
+    <div class="modal fade" id="unsubscribeModal" tabindex="-1" aria-labelledby="unsubscribeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="unsubscribeModalLabel">Confirm Unsubscription</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center">We're sad to see you go. Are you sure you want to unsubscribe from Premium?</p>
+                    <div class="alert alert-warning">
+                        Once unsubscribed, your account will lose access to all Premium features and benefits.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ url_for('views.premium_unsubscribe_confirm') }}" method="POST">
+                        <button type="submit" class="btn btn-danger rounded-5">Unsubscribe</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-5" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
