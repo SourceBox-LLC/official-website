@@ -21,6 +21,8 @@ API_URL = os.getenv('API_URL')
 
 # Ensure the secret key is set for session management
 app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = True
 
 # Helper function to get headers with the JWT token
 def get_headers():
@@ -43,17 +45,17 @@ def create_checkout_session():
 
     try:
         # Include the success_url with a query parameter
-        success_url = url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}'
-        cancel_url = url_for('payment_cancel', _external=True)
-        logger.info(f"Success URL: {success_url}")
-        logger.info(f"Cancel URL: {cancel_url}")
+        success_url = url_for('payment_success', _external=True, _scheme='https') + '?session_id={CHECKOUT_SESSION_ID}'
+        cancel_url = url_for('payment_cancel', _external=True, _scheme='https')
+        logger.info(f"Constructed success_url: {success_url}")
+        logger.info(f"Constructed cancel_url: {cancel_url}")
 
         # Define your line items and other session parameters
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[
                 {
-                    'price': 'price_1Q1YDjRsIPLRGXtLO9abyGvz',  # Replace with your actual price ID
+                    'price': 'price_1Q1YDjRsIPLRGXtLO9abyGvz',  # Replace with your actual Price ID
                     'quantity': 1,
                 },
             ],
@@ -66,6 +68,7 @@ def create_checkout_session():
     except Exception as e:
         logger.error(f"Error creating Stripe Checkout session: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
 
 # Route to handle payment success
 @app.route('/payment_success')
@@ -117,9 +120,7 @@ def update_premium_status():
         if not headers:
             logging.error("No access token available in session.")
             flash('You need to be logged in to update premium status.', 'error')
-            return redirect(url_for('login_page')
-
-)
+            return redirect(url_for('login_page'))
 
         # Get the user ID from the API
         user_id_url = f"{API_URL}/user/id"
