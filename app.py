@@ -26,6 +26,7 @@ def stripe_webhook():
     event = None
 
     try:
+        # Verify the webhook signature
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
@@ -70,6 +71,7 @@ def stripe_webhook():
             print(f"Failed to retrieve user ID for {customer_email}: {response.text}")
 
     return jsonify({'status': 'success'}), 200
+
 
 
 
