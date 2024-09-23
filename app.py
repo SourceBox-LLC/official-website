@@ -1,5 +1,5 @@
 from website import create_app
-from flask import Flask, request, jsonify, session, url_for, redirect, flash
+from flask import Flask, request, jsonify
 import os
 from dotenv import load_dotenv
 import requests
@@ -23,15 +23,6 @@ API_URL = os.getenv('API_URL')
 app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
-
-# Helper function to get the user's JWT token from the session
-def get_headers():
-    token = session.get('access_token')
-    if token:
-        return {'Authorization': f'Bearer {token}'}
-    else:
-        logger.error("No user access token found in session")
-        return None
 
 # Webhook endpoint for handling Stripe events
 @app.route('/stripe/webhook', methods=['POST'])
@@ -60,44 +51,23 @@ def stripe_webhook():
         logger.info(f"Checkout session completed for {customer_email}.")
 
         # Call the function to grant premium status using the customer's email
-        grant_premium_status(customer_email)
+        grant_premium_status_by_email(customer_email)
 
     logger.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
 
 # Function to grant premium status to the user after successful payment
-def grant_premium_status(customer_email):
+def grant_premium_status_by_email(customer_email):
     logger.info(f"Attempting to grant premium status for {customer_email}.")
     
-    # Retrieve user info from your API by their email
-    headers = get_headers()
-    if not headers:
-        logger.error("Unable to grant premium status due to missing user token.")
-        return
-    
-    # Search for the user by email using your API
-    user_search_url = f"{API_URL}/users/search"
-    response = requests.get(user_search_url, params={'email': customer_email}, headers=headers)
+    # Call the API to grant premium status using the user's email
+    grant_premium_url = f"{API_URL}/user/premium/grant_by_email"
+    response = requests.put(grant_premium_url, json={'email': customer_email})
 
     if response.status_code == 200:
-        user_data = response.json()
-        user_id = user_data.get('id')
-
-        if user_id:
-            logger.info(f"User ID {user_id} found. Attempting to grant premium status.")
-
-            # Make a request to your API to grant the user premium status
-            user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
-            grant_response = requests.put(user_update_url, headers=headers)
-
-            if grant_response.status_code == 200:
-                logger.info(f"Premium status successfully granted for user ID {user_id}.")
-            else:
-                logger.error(f"Failed to grant premium status for user ID {user_id}. Response: {grant_response.text}")
-        else:
-            logger.error(f"User ID not found for email {customer_email}.")
+        logger.info(f"Premium status successfully granted for {customer_email}.")
     else:
-        logger.error(f"Failed to retrieve user info for {customer_email}. Response: {response.text}")
+        logger.error(f"Failed to grant premium status for {customer_email}. Response: {response.text}")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
