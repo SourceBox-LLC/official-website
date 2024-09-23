@@ -294,7 +294,6 @@ def premium_unsubscribe():
 
 
 # confirmed premium unsubscribe
-# Confirmed premium unsubscribe
 @views.route('/premium_unsubscribe_confirm', methods=['POST'])
 @token_required
 def premium_unsubscribe_confirm():
@@ -335,8 +334,14 @@ def premium_unsubscribe_confirm():
     stripe_subscription_id = stripe_response.json().get('stripe_subscription_id')
     logger.info(f"Retrieved Stripe subscription ID: {stripe_subscription_id}")
 
-    # Ensure the stripe_subscription_id is a valid string
-    if isinstance(stripe_subscription_id, str) and stripe_subscription_id:
+    if not stripe_subscription_id:
+        # If no subscription ID is found, notify the user and log the issue
+        logger.error(f"Subscription ID not found for user {user_id}.")
+        flash('Your subscription is not active or already canceled. Please contact support if this is an error.', 'error')
+        return redirect(url_for('views.user_settings'))
+
+    # Cancel the subscription if the ID is valid
+    if isinstance(stripe_subscription_id, str):
         try:
             # Cancel the Stripe subscription at the end of the billing cycle
             stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -368,6 +373,7 @@ def premium_unsubscribe_confirm():
 
     # Redirect the user to the dashboard
     return redirect(url_for('views.dashboard'))
+
 
 
 
