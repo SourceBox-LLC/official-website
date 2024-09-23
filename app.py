@@ -19,18 +19,35 @@ logger = logging.getLogger(__name__)
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 API_URL = os.getenv('API_URL')
 
+# Ensure the secret key is set for session management
+app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
+
+# Helper function to get headers with the JWT token
+def get_headers():
+    token = session.get('access_token')
+    if token:
+        logger.debug(f"Token found in session: {token[:10]}... (truncated for security)")
+        return {'Authorization': f'Bearer {token}'}
+    else:
+        logger.debug("No token found in session.")
+        return {}
+
 # Route to create the Stripe Checkout session
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
+    logger.info("create_checkout_session route accessed.")
     # Ensure the user is logged in
     if 'access_token' not in session:
         flash('You need to log in to proceed with the payment.', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('login_page'))
 
     try:
         # Include the success_url with a query parameter
         success_url = url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}'
         cancel_url = url_for('payment_cancel', _external=True)
+        logger.info(f"Success URL: {success_url}")
+        logger.info(f"Cancel URL: {cancel_url}")
+
         # Define your line items and other session parameters
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -47,12 +64,13 @@ def create_checkout_session():
         logger.info(f"Stripe Checkout session created: {checkout_session.id}")
         return jsonify({'id': checkout_session.id})
     except Exception as e:
-        logger.error(f"Error creating Stripe Checkout session: {e}")
+        logger.error(f"Error creating Stripe Checkout session: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 # Route to handle payment success
 @app.route('/payment_success')
 def payment_success():
+    logger.info("Payment success route accessed.")
     session_id = request.args.get('session_id')
 
     if not session_id:
@@ -68,17 +86,20 @@ def payment_success():
             flash('Could not retrieve customer email.', 'error')
             return redirect(url_for('dashboard'))
 
-        # Verify that the customer email matches the logged-in user's email
+        # Log the emails being compared
         user_email = session.get('email')
-        if customer_email != user_email:
+        logger.info(f"Comparing emails: customer_email={customer_email}, user_email={user_email}")
+
+        # Normalize and compare emails
+        if customer_email.strip().lower() != user_email.strip().lower():
             flash('Email mismatch. Please contact support.', 'error')
-            logging.error(f"Email mismatch: customer_email={customer_email}, user_email={user_email}")
+            logger.error(f"Email mismatch: customer_email={customer_email}, user_email={user_email}")
             return redirect(url_for('dashboard'))
 
         # Call the update_premium_status function
-        return update_premium_status(user_email)
+        return update_premium_status()
     except Exception as e:
-        logging.error(f"Error retrieving Stripe session: {e}")
+        logger.error(f"Error in payment_success: {e}", exc_info=True)
         flash('Error retrieving payment information. Please contact support.', 'error')
         return redirect(url_for('dashboard'))
 
@@ -88,29 +109,36 @@ def payment_cancel():
     flash('Payment was cancelled.', 'info')
     return redirect(url_for('dashboard'))
 
-def update_premium_status(user_email):
-    logging.info(f"Attempting to update premium status for {user_email}.")
+def update_premium_status():
+    logging.info("update_premium_status called.")
+    try:
+        # Use the existing access token stored in session
+        headers = get_headers()
+        if not headers:
+            logging.error("No access token available in session.")
+            flash('You need to be logged in to update premium status.', 'error')
+            return redirect(url_for('login_page')
 
-    # Use the existing access token stored in session
-    access_token = session.get('access_token')
-    if not access_token:
-        logging.error("No access token available in session.")
-        flash('You need to be logged in to update premium status.', 'error')
-        return redirect(url_for('login'))
+)
 
-    # Call your API to grant the user premium status
-    headers = {'Authorization': f'Bearer {access_token}'}
-    user_search_url = f"{API_URL}/users/search"
-    response = requests.get(user_search_url, params={'email': user_email}, headers=headers)
+        # Get the user ID from the API
+        user_id_url = f"{API_URL}/user/id"
+        response = requests.get(user_id_url, headers=headers)
+        logging.info(f"User ID response: {response.status_code}, {response.text}")
 
-    if response.status_code == 200:
-        user_data = response.json()
-        user_id = user_data.get('id')
+        if response.status_code == 200:
+            user_id = response.json().get('user_id')
+            logging.info(f"User ID obtained: {user_id}")
 
-        if user_id:
-            logging.info(f"User ID {user_id} found. Attempting to grant premium status.")
+            if not user_id:
+                logging.error("User ID not found in response.")
+                flash('Failed to retrieve user ID. Please contact support.', 'error')
+                return redirect(url_for('dashboard'))
+
+            # Make a request to the API to grant premium status
             user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
             grant_response = requests.put(user_update_url, headers=headers)
+            logging.info(f"Grant premium status response: {grant_response.status_code}, {grant_response.text}")
 
             if grant_response.status_code == 200:
                 logging.info(f"Premium status successfully granted for user ID {user_id}.")
@@ -121,19 +149,20 @@ def update_premium_status(user_email):
                 flash('Failed to activate premium status. Please contact support.', 'error')
                 return redirect(url_for('dashboard'))
         else:
-            logging.error(f"User ID not found for {user_email}.")
-            flash('User not found. Please contact support.', 'error')
+            logging.error(f"Failed to retrieve user ID. Response: {response.text}")
+            flash('Failed to retrieve user information. Please contact support.', 'error')
             return redirect(url_for('dashboard'))
-    else:
-        logging.error(f"Failed to retrieve user info for {user_email}. Response: {response.text}")
-        flash('Failed to retrieve user information. Please contact support.', 'error')
+
+    except Exception as e:
+        logging.error(f"Error in update_premium_status: {e}", exc_info=True)
+        flash('An error occurred while updating your premium status. Please contact support.', 'error')
         return redirect(url_for('dashboard'))
 
 # Webhook endpoint for handling Stripe events
 @app.route('/stripe/webhook', methods=['POST'])
 def stripe_webhook():
     logging.info("Stripe webhook triggered.")
-    
+
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
     endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
@@ -143,10 +172,10 @@ def stripe_webhook():
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
         logging.info("Stripe event constructed successfully.")
     except ValueError as e:
-        logging.error("Invalid payload from Stripe.")
+        logging.error("Invalid payload from Stripe.", exc_info=True)
         return jsonify({'error': 'Invalid payload'}), 400
     except stripe.error.SignatureVerificationError as e:
-        logging.error("Invalid signature verification from Stripe.")
+        logging.error("Invalid signature verification from Stripe.", exc_info=True)
         return jsonify({'error': 'Invalid signature'}), 400
 
     # Handle the checkout session completed event
@@ -166,9 +195,12 @@ def login():
     email = request.form.get('email')
     password = request.form.get('password')
 
+    logger.info(f"Login attempt for email: {email}")
+
     try:
         # Make a request to your authentication API
         response = requests.post(f"{API_URL}/login", json={'email': email, 'password': password})
+        logger.info(f"Authentication API response: {response.status_code}, {response.text}")
 
         if response.status_code == 200:
             data = response.json()
@@ -182,25 +214,25 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password.', 'error')
-            return redirect(url_for('login'))
+            return redirect(url_for('login_page'))
     except Exception as e:
-        logging.error(f"Error during login: {e}")
+        logging.error(f"Error during login: {e}", exc_info=True)
         flash('An error occurred during login. Please try again later.', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('login_page'))
 
 # Dashboard route
 @app.route('/dashboard')
 def dashboard():
     # Your code to render the dashboard
-    return redirect(url_for('dashboard'))
+    logger.info("Dashboard accessed.")
+    return "Welcome to your dashboard!"
 
 # Login page route
 @app.route('/login')
 def login_page():
     # Your code to render the login page
-    return redirect(url_for('login'))
-
-
+    logger.info("Login page accessed.")
+    return "Login page"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
