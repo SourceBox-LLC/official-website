@@ -1,10 +1,11 @@
+import jwt
+from datetime import datetime, timedelta
 from website import create_app
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 import os
-from dotenv import load_dotenv
 import requests
 import stripe
-# bug report google form link https://forms.gle/sA1Z1FRESpwFo6CJA
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -13,9 +14,17 @@ app = create_app()
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 API_URL = os.getenv('API_URL')
 
+# Generate an internal JWT token for API calls
+def generate_internal_jwt():
+    # Adjust the expiration time and payload as necessary
+    return jwt.encode({
+        'exp': datetime.utcnow() + timedelta(hours=1),
+        'iat': datetime.utcnow(),
+        'sub': 'internal_service'
+    }, os.getenv('JWT_SECRET_KEY'), algorithm='HS256')
 
-# webhook endpoint for handling Stripe events
-# Your webhook endpoint for handling Stripe events
+
+# Webhook endpoint for handling Stripe events
 @app.route('/stripe/webhook', methods=['POST'])
 def stripe_webhook():
     payload = request.get_data(as_text=True)
@@ -35,23 +44,26 @@ def stripe_webhook():
         # Invalid signature
         return jsonify({'error': 'Invalid signature'}), 400
 
-    # Handle the event type
+    # Handle the checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
         customer_email = session_data['customer_details']['email']
 
-        # Fetch the user ID using the correct method (GET)
-        headers = {'Authorization': f'Bearer {session.get("access_token")}'}
+        # Generate internal JWT for API requests
+        internal_jwt = generate_internal_jwt()
+        headers = {'Authorization': f'Bearer {internal_jwt}'}
+
         user_search_url = f"{API_URL}/users/search"
         
-        # Use GET request with query parameters to search by email
+        # Search for the user using the email
         response = requests.get(user_search_url, params={'email': customer_email}, headers=headers)
 
         if response.status_code == 200:
             user_data = response.json()
             user_id = user_data.get('id')
+            
             if user_id:
-                # Grant premium status using the correct endpoint
+                # Grant premium status using the /premium/grant endpoint
                 user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
                 grant_response = requests.put(user_update_url, headers=headers)
 
@@ -65,8 +77,6 @@ def stripe_webhook():
             print(f"Failed to retrieve user ID for {customer_email}: {response.text}")
 
     return jsonify({'status': 'success'}), 200
-
-
 
 
 if __name__ == '__main__':
