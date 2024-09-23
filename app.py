@@ -44,7 +44,7 @@ def stripe_webhook():
         logger.error("Invalid signature verification from Stripe.", exc_info=True)
         return jsonify({'error': 'Invalid signature'}), 400
 
-    # Handle the checkout session completed event
+    # Handle the checkout session completed event (grant premium status)
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
         customer_email = session_data.get('customer_details', {}).get('email')
@@ -52,6 +52,15 @@ def stripe_webhook():
 
         # Call the function to grant premium status using the customer's email
         grant_premium_status_by_email(customer_email)
+
+    # Handle the subscription deleted event (remove premium status)
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription_data = event['data']['object']
+        customer_email = subscription_data.get('customer_email')
+        logger.info(f"Subscription canceled for {customer_email}.")
+
+        # Call the function to remove premium status using the customer's email
+        remove_premium_status_by_email(customer_email)
 
     logger.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
@@ -68,6 +77,19 @@ def grant_premium_status_by_email(customer_email):
         logger.info(f"Premium status successfully granted for {customer_email}.")
     else:
         logger.error(f"Failed to grant premium status for {customer_email}. Response: {response.text}")
+
+# Function to remove premium status when a subscription is canceled
+def remove_premium_status_by_email(customer_email):
+    logger.info(f"Attempting to remove premium status for {customer_email}.")
+    
+    # Call the API to remove premium status using the user's email
+    remove_premium_url = f"{API_URL}/user/premium/remove_by_email"
+    response = requests.put(remove_premium_url, json={'email': customer_email})
+
+    if response.status_code == 200:
+        logger.info(f"Premium status successfully removed for {customer_email}.")
+    else:
+        logger.error(f"Failed to remove premium status for {customer_email}. Response: {response.text}")
 
 
 

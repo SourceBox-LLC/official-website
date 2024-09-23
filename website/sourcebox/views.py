@@ -10,6 +10,7 @@ import logging
 from openai import OpenAI
 from dotenv import load_dotenv
 import shutil, tempfile, subprocess
+import stripe
 
 load_dotenv()
 
@@ -290,6 +291,7 @@ def premium_unsubscribe():
     return render_template('premium_unsubscribe.html')
 
 
+
 # confirmed premium unsubscribe
 @views.route('/premium_unsubscribe_confirm', methods=['POST'])
 @token_required
@@ -298,7 +300,7 @@ def premium_unsubscribe_confirm():
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
-    # Fetch the user ID
+    # Fetch the user ID from your API
     user_id_url = f"{API_URL}/user/id"
     user_id_response = requests.get(user_id_url, headers=headers)
 
@@ -308,17 +310,42 @@ def premium_unsubscribe_confirm():
         flash('Failed to retrieve user ID', 'error')
         return redirect(url_for('views.user_settings'))
 
-    # Remove premium status via API
-    remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
-    response = requests.put(remove_premium_url, headers=headers)
+    # Get the Stripe subscription ID from your API
+    stripe_subscription_url = f"{API_URL}/user/{user_id}/stripe_subscription"
+    stripe_response = requests.get(stripe_subscription_url, headers=headers)
 
-    if response.status_code == 200:
-        flash('Your premium subscription has been cancelled.', 'success')
+    if stripe_response.status_code == 200:
+        stripe_subscription_id = stripe_response.json().get('stripe_subscription_id')
+
+        # Cancel the Stripe subscription
+        try:
+            stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+            stripe.Subscription.modify(
+                stripe_subscription_id,
+                cancel_at_period_end=True  # Cancel at the end of the billing cycle
+            )
+            flash('Your subscription has been cancelled. Premium access will continue until the end of the billing period.', 'success')
+
+            # Remove premium status via your API
+            remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
+            response = requests.put(remove_premium_url, headers=headers)
+
+            if response.status_code == 200:
+                flash('Your premium status has been updated.', 'success')
+            else:
+                flash('Failed to update your premium status. Please try again later.', 'error')
+        except stripe.error.StripeError as e:
+            print(f"Stripe error: {e}")
+            flash('Failed to cancel your Stripe subscription. Please contact support.', 'error')
+            return redirect(url_for('views.user_settings'))
     else:
-        flash('Failed to cancel premium subscription. Please try again later.', 'error')
+        flash('Failed to retrieve your Stripe subscription. Please contact support.', 'error')
+        return redirect(url_for('views.user_settings'))
 
-    # Redirect the user to the dashboard after confirming the unsubscribe
+    # Redirect the user to the dashboard
     return redirect(url_for('views.dashboard'))
+
+
 
 
 
