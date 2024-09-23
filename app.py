@@ -21,10 +21,11 @@ API_URL = os.getenv('API_URL')
 
 
 # webhook endpoint for handling Stripe events
+# Webhook endpoint for handling Stripe events
 @app.route('/stripe/webhook', methods=['POST'])
 def stripe_webhook():
-    logger.info("Stripe webhook triggered.")
-
+    logging.info("Stripe webhook triggered.")
+    
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
     endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
@@ -32,19 +33,19 @@ def stripe_webhook():
     try:
         # Construct the event from the Stripe webhook
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        logger.info("Stripe event constructed successfully.")
+        logging.info("Stripe event constructed successfully.")
     except ValueError as e:
-        logger.error("Invalid payload from Stripe.")
+        logging.error("Invalid payload from Stripe.")
         return jsonify({'error': 'Invalid payload'}), 400
     except stripe.error.SignatureVerificationError as e:
-        logger.error("Invalid signature verification from Stripe.")
+        logging.error("Invalid signature verification from Stripe.")
         return jsonify({'error': 'Invalid signature'}), 400
 
     # Handle the checkout session completed event
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
-        customer_email = session_data['customer_details']['email']
-        logger.info(f"Checkout session completed for {customer_email}.")
+        customer_email = session_data.get('customer_details', {}).get('email')
+        logging.info(f"Checkout session completed for {customer_email}.")
 
         # Redirect to the route that updates the premium status
         return jsonify({
@@ -52,7 +53,7 @@ def stripe_webhook():
             'redirect_url': url_for('update_premium_status', email=customer_email)
         }), 200
 
-    logger.info("Stripe webhook processed successfully.")
+    logging.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
 
 
@@ -63,15 +64,15 @@ def update_premium_status():
     user_email = data.get('email')
 
     if not user_email:
-        logger.error("No email provided to update premium status.")
+        logging.error("No email provided to update premium status.")
         return jsonify({'error': 'No email provided'}), 400
 
-    logger.info(f"Attempting to update premium status for {user_email}.")
+    logging.info(f"Attempting to update premium status for {user_email}.")
 
     # Use the existing access token stored in session
     access_token = session.get('access_token')
     if not access_token:
-        logger.error("No access token available in session.")
+        logging.error("No access token available in session.")
         return jsonify({'error': 'No access token available'}), 401
 
     # Call your API to grant the user premium status
@@ -84,21 +85,21 @@ def update_premium_status():
         user_id = user_data.get('id')
 
         if user_id:
-            logger.info(f"User ID {user_id} found. Attempting to grant premium status.")
+            logging.info(f"User ID {user_id} found. Attempting to grant premium status.")
             user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
             grant_response = requests.put(user_update_url, headers=headers)
 
             if grant_response.status_code == 200:
-                logger.info(f"Premium status successfully granted for user ID {user_id}.")
+                logging.info(f"Premium status successfully granted for user ID {user_id}.")
                 return jsonify({'status': 'Premium status granted'}), 200
             else:
-                logger.error(f"Failed to grant premium status for user ID {user_id}. Response: {grant_response.text}")
+                logging.error(f"Failed to grant premium status for user ID {user_id}. Response: {grant_response.text}")
                 return jsonify({'error': 'Failed to grant premium status'}), 500
         else:
-            logger.error(f"User ID not found for {user_email}.")
+            logging.error(f"User ID not found for {user_email}.")
             return jsonify({'error': 'User not found'}), 404
     else:
-        logger.error(f"Failed to retrieve user info for {user_email}. Response: {response.text}")
+        logging.error(f"Failed to retrieve user info for {user_email}. Response: {response.text}")
         return jsonify({'error': 'Failed to retrieve user info'}), 500
 
 
