@@ -1,5 +1,5 @@
 from website import create_app
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect, url_for, flash
 import os
 from dotenv import load_dotenv
 import requests
@@ -90,9 +90,6 @@ def remove_premium_status_by_email(customer_email):
         logger.info(f"Premium status successfully removed for {customer_email}.")
     else:
         logger.error(f"Failed to remove premium status for {customer_email}. Response: {response.text}")
-
-
-
 
 
 if __name__ == '__main__':
