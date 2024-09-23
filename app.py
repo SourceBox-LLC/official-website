@@ -1,5 +1,5 @@
 from website import create_app
-from flask import Flask, request, jsonify, session, redirect, url_for, flash
+from flask import Flask, request, jsonify
 import os
 from dotenv import load_dotenv
 import requests
@@ -63,7 +63,7 @@ def stripe_webhook():
         else:
             logger.error("Checkout session completed but customer email or subscription ID is missing.")
 
-    # Handle the subscription deleted event (remove premium status)
+    # Handle the subscription deleted event (remove premium status at the end of the billing cycle)
     elif event['type'] == 'customer.subscription.deleted':
         subscription_data = event['data']['object']
         customer_email = subscription_data.get('customer_email')
@@ -76,9 +76,10 @@ def stripe_webhook():
                 logger.error(f"Error removing premium status for {customer_email}: {e}", exc_info=True)
         else:
             logger.error("Subscription canceled but customer email is missing.")
-    
+
     logger.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
+
 
 # Function to grant premium status and store subscription ID in the database
 def grant_premium_status_and_store_subscription(customer_email, subscription_id):
@@ -100,17 +101,18 @@ def grant_premium_status_and_store_subscription(customer_email, subscription_id)
         # Grant premium status using the user's email
         grant_premium_url = f"{API_URL}/user/premium/grant_by_email"
         response = requests.put(grant_premium_url, json={'email': customer_email})
-        response.raise_for_status()  # Raise error if the request was unsuccessful
+        response.raise_for_status()
         logger.info(f"Premium status successfully granted for {customer_email}.")
 
         # Store Stripe subscription ID using the user's ID
         set_subscription_url = f"{API_URL}/user/{user_id}/stripe/subscription"
         subscription_response = requests.put(set_subscription_url, json={'stripe_subscription_id': subscription_id})
-        subscription_response.raise_for_status()  # Raise error if the request was unsuccessful
+        subscription_response.raise_for_status()
         logger.info(f"Subscription ID {subscription_id} stored for user {customer_email} (ID: {user_id}).")
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to grant premium status or store subscription ID for {customer_email}: {e}", exc_info=True)
+
 
 # Function to remove premium status when a subscription is canceled
 def remove_premium_status_by_email(customer_email):
@@ -120,12 +122,11 @@ def remove_premium_status_by_email(customer_email):
     remove_premium_url = f"{API_URL}/user/premium/remove_by_email"
     try:
         response = requests.put(remove_premium_url, json={'email': customer_email})
-        response.raise_for_status()  # Raise error if the request was unsuccessful
+        response.raise_for_status()
 
         logger.info(f"Premium status successfully removed for {customer_email}.")
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to remove premium status for {customer_email}. Response: {e}", exc_info=True)
-
 
 
 if __name__ == '__main__':

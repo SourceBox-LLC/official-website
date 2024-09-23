@@ -338,16 +338,9 @@ def premium_unsubscribe_confirm():
                 logger.info(f"Subscription {stripe_subscription_id} set to cancel at period end.")
                 flash('Your subscription has been canceled. Premium access will continue until the end of the billing period.', 'success')
 
-                # Remove premium status via your API
-                remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
-                response = requests.put(remove_premium_url, headers=headers)
+                # Do not remove premium status yet. We wait for the Stripe webhook (customer.subscription.deleted)
+                # to handle the actual removal at the end of the billing cycle.
 
-                if response.status_code == 200:
-                    logger.info(f"Premium status removed for user {user_id}.")
-                    flash('Your premium status has been updated.', 'success')
-                else:
-                    logger.error(f"Failed to remove premium status for user {user_id}.")
-                    flash('Failed to update your premium status. Please try again later.', 'error')
             except stripe.error.StripeError as e:
                 logger.error(f"Stripe error during subscription cancellation: {e}")
                 flash('Failed to cancel your Stripe subscription. Please contact support.', 'error')
@@ -359,6 +352,7 @@ def premium_unsubscribe_confirm():
 
     # Redirect the user to the dashboard
     return redirect(url_for('views.dashboard'))
+
 
 
 
