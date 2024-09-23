@@ -21,43 +21,41 @@ API_URL = os.getenv('API_URL')
 def stripe_webhook():
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
-
     endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
     event = None
 
     try:
-        # Verify the webhook signature
+        # Construct the event from the Stripe webhook
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
     except ValueError as e:
-        # Invalid payload
         return jsonify({'error': 'Invalid payload'}), 400
     except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
         return jsonify({'error': 'Invalid signature'}), 400
 
-    # Handle the event type
+    # Handle the checkout session completed event
     if event['type'] == 'checkout.session.completed':
         session_data = event['data']['object']
         customer_email = session_data['customer_details']['email']
 
-        # Use the access token stored in the session
+        # Retrieve the stored access token from the session
         access_token = session.get('access_token')
         if not access_token:
             return jsonify({'error': 'No access token available'}), 401
-        
+
         headers = {'Authorization': f'Bearer {access_token}'}
         user_search_url = f"{API_URL}/users/search"
-        
-        # Use GET request with query parameters to search by email
+
+        # Use the GET request to search for the user by email
         response = requests.get(user_search_url, params={'email': customer_email}, headers=headers)
 
         if response.status_code == 200:
             user_data = response.json()
             user_id = user_data.get('id')
+
             if user_id:
-                # Grant premium status using the correct endpoint
+                # Grant premium status to the user
                 user_update_url = f"{API_URL}/user/{user_id}/premium/grant"
                 grant_response = requests.put(user_update_url, headers=headers)
 
