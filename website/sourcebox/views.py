@@ -39,6 +39,47 @@ def record_user_history(action):
         if response.status_code != 201:
             flash('Failed to record user history', 'error')
 
+
+
+@views.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query', '').lower().strip()
+
+    if not query:
+        flash('Please enter a search term.', 'danger')
+        return redirect(url_for('views.landing'))
+
+    # List of pages and services that can be searched
+    available_pages = [
+        {'name': 'Dashboard', 'url': url_for('views.dashboard')},
+        {'name': 'Updates', 'url': url_for('views.updates')},
+        {'name': 'Services', 'url': url_for('views.content')},
+        {'name': 'DeepQuery', 'url': url_for('views.launch_wikidoc')},
+        {'name': 'DeepQuery Code', 'url': url_for('views.launch_codedoc')},
+        {'name': 'Source Lightning', 'url': url_for('views.launch_source_lightning')},
+        {'name': 'Pack-Man', 'url': url_for('views.launch_pack_man')},
+        {'name': 'VideoGen', 'url': url_for('views.launch_videogen')},
+        {'name': 'U-Studio', 'url': url_for('views.launch_u_studio')},
+        {'name': 'Documentation', 'url': url_for('views.documentation')},
+        {'name': 'User Settings', 'url': url_for('views.user_settings')},
+        {'name': 'Premium Info', 'url': url_for('views.premium_info')},
+        {'name': 'Platform Support', 'url': url_for('views.platform_support')},
+        {'name': 'Learn More', 'url': url_for('views.learn_more')}
+    ]
+
+    # Filter results based on the search query
+    matching_pages = [page for page in available_pages if query in page['name'].lower()]
+
+    if not matching_pages:
+        flash('No matching pages or services found.', 'danger')
+        return redirect(url_for('views.landing'))
+
+    # Render search results
+    return render_template('search_results.html', query=query, results=matching_pages)
+
+
+
+
 @views.route('/')
 @views.route('/landing')
 def landing():

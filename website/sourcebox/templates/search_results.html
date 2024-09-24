@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>Search Results for "{{ query }}"</h2>
+
+    {% if results %}
+      <ul class="list-group">
+        {% for result in results %}
+          <li class="list-group-item">
+            <a href="{{ result.url }}">{{ result.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No matching results found.</p>
+    {% endif %}
+  </div>
+{% endblock %}
