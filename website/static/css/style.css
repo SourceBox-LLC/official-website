@@ -114,3 +114,15 @@ h1, h2, h3, h4, h5, h6, p, div {
     transition: all 0.7s ease-in-out;
     transform: scale(1.5); /* Scale the SVG to 150% of its size */
 }
+
+
+@media (max-width: 768px) {
+    .box-color2 .row {
+      display: flex;
+      flex-direction: column;
+    }
+    .box-color2 .col {
+      width: 100%;
+    }
+  }
+  
