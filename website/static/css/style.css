@@ -111,7 +111,7 @@ h1, h2, h3, h4, h5, h6, p, div {
     z-index: 10; /* Ensure the card is above other content */
 }
 .card:hover svg {
-    transition: all 0.7s ease-in-out;
+    transition: all 0.5s ease-in-out;
     transform: scale(1.5); /* Scale the SVG to 150% of its size */
 }
 

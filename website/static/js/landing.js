@@ -28,6 +28,16 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="text-center">Processing, please wait...</p>
     `;
 
+    // Format the AI response, handling code and text formatting
+    function formatResponse(response) {
+        console.log("Formatting AI response...");
+        let formattedText = response.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+        formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedText = formattedText.replace(/\n/g, '<br>');
+        return formattedText;
+    }
+
     // Function to handle form submission and API request
     function submitForm(form, apiUrl) {
         const formData = new FormData(form);
@@ -64,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (apiUrl === '/rag-api-image') {
                     modalBody.innerHTML = `<img src="${data.result}" alt="Generated Image" class="img-fluid"/>`;
                 } else {
-                    modalBody.textContent = JSON.stringify(data.message || data.result, null, 2); // Display result from the API
+                    modalBody.innerHTML = formatResponse(data.message || data.result); // Display formatted result from the API
                 }
             }
         })
@@ -89,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 modalBody.textContent = JSON.stringify(data.error, null, 2);
             } else {
-                modalBody.textContent = JSON.stringify(data.result, null, 2); // Display result from the API
+                modalBody.innerHTML = formatResponse(data.result);
             }
         })
         .catch(error => {
