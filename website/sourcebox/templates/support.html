@@ -81,19 +81,18 @@
         }
     
         .chatbot.expanded {
-            height: 80vh; /* Limit the chatbot's height to 80% of the viewport height */
+            height: 70vh; /* Limit the chatbot's height to 70% of the viewport height */
             bottom: 0px; /* Stick to the bottom when expanded */
         }
     
         #chatbot-conversation {
-            height: calc(80vh - 150px); /* Dynamically adjust conversation height */
+            height: calc(70vh - 150px); /* Dynamically adjust conversation height based on total chatbot height */
         }
     
         .chatbot textarea {
             height: 40px; /* Smaller textarea for mobile */
         }
-    }
-    
+    }  
 </style>
 {% endblock %}
 
