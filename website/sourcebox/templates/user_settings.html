@@ -22,7 +22,7 @@
     </div>
     <br/>
     <div class="row justify-content-center">
-        <div class="col-12 col-sm-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4 mb-4"> <!-- Added margin-bottom for spacing -->
             <div class="card box-color3 border border-dark p-3 rounded-5">
                 <div class="card-body">
                     <h5 class="card-title border border-dark p-3 rounded-5" align="center">Reset Email or Password</h5>
@@ -46,9 +46,8 @@
             </div>
         </div>
 
-
         <!-- Premium subscription card -->
-        <div class="col-12 col-sm-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4 mb-4"> <!-- Added margin-bottom for spacing -->
             <div class="card box-color3 border border-dark p-3 rounded-5">
                 <div class="card-body">
                     <h5 class="card-title border border-dark p-3 rounded-5" align="center">
@@ -71,12 +70,10 @@
                         <div class="row">
                             <div class="col">
                                 {% if is_premium %}
-                                    <!-- Unsubscribe button for premium users -->
                                     <a href="/premium_unsubscribe">
                                         <button type="button" class="btn btn-outline-secondary rounded-5">Unsubscribe</button>
                                     </a>
                                 {% else %}
-                                    <!-- Upgrade button for non-premium users -->
                                     <a href="/premium_info">
                                         <button type="button" class="btn btn-outline-secondary rounded-5">Upgrade</button>
                                     </a>
@@ -85,14 +82,12 @@
                             <div class="col">
                                 <div align="right" class="p-1">
                                     {% if is_premium %}
-                                        <!-- Link to premium unsubscribe info for premium users -->
                                         <a href="/premium_unsubscribe">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
                                                 <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
                                             </svg>
                                         </a>
                                     {% else %}
-                                        <!-- Link to premium info for non-premium users -->
                                         <a href="/premium_info">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
                                                 <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
@@ -107,12 +102,8 @@
             </div>
         </div>
 
-
-
-
-
         <!-- Delete account card -->
-        <div class="col-12 col-sm-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4 mb-4"> <!-- Added margin-bottom for spacing -->
             <div class="card box-color3 border border-dark p-3 rounded-5">
                 <div class="card-body">
                     <h5 class="card-title border border-dark p-3 rounded-5" align="center">Delete SourceBox Account</h5>
