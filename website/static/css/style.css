@@ -116,13 +116,18 @@ h1, h2, h3, h4, h5, h6, p, div {
 }
 
 
+/* Card section responsiveness */
 @media (max-width: 768px) {
-    .box-color2 .row {
+    .responsive-card .row {
       display: flex;
-      flex-direction: column;
+      flex-direction: column; /* Stack the image and text */
     }
-    .box-color2 .col {
-      width: 100%;
+    .responsive-card .col {
+      width: 100%; /* Ensure full width on smaller screens */
+      text-align: center; /* Optional: center the content */
+    }
+    .responsive-card .img {
+      margin-bottom: 15px; /* Add space between the image and text */
     }
   }
   
