@@ -4,7 +4,7 @@
 <style>
     .chatbot {
         position: fixed;
-        bottom: 20px; /* Maintain a fixed distance from the bottom */
+        bottom: 20px;
         right: 20px;
         width: 450px;
         height: 70px;
@@ -13,7 +13,7 @@
         border-radius: 10px;
         cursor: pointer;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        transition: height 0.3s ease;
+        transition: height 0.3s ease, right 0.3s ease, bottom 0.3s ease;
         z-index: 1000; /* Ensure the chatbot is above other content */
     }
     .chatbot.expanded {
@@ -60,6 +60,24 @@
         padding: 5px;
         margin: 5px 0;
     }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 768px) {
+        .chatbot {
+            bottom: 10px;
+            right: 50%; /* Position it at the center */
+            transform: translateX(50%); /* Adjust it to be centered */
+            width: 90%; /* Make it occupy more width on smaller screens */
+            max-width: 100%; /* Make sure it doesn't exceed screen width */
+            height: 60px; /* Slightly smaller height on mobile */
+        }
+        .chatbot.expanded {
+            height: 350px; /* Adjust expanded height for smaller screens */
+        }
+        .chatbot textarea {
+            height: 40px; /* Smaller textarea for mobile */
+        }
+    }
 </style>
 {% endblock %}
 
@@ -89,11 +107,11 @@
     </div>
     <br/>
     <br/>
-    <h3 align="center">Dont feel like talking?</h3>
+    <h3 align="center">Don't feel like talking?</h3>
     <p align="center">You can fill out this form to report bugs and issues <a href="https://forms.gle/sA1Z1FRESpwFo6CJA">Here</a></p>
     <div class="chatbot" id="chatbot">
         <div class="chatbot-header">
-            Wait! Before you submit a ticket maybe I can help save you time!
+            Wait! Before you submit a ticket, maybe I can help save you time!
         </div>
         <div class="chatbot-body">
             <div id="chatbot-conversation" style="max-height: 200px; overflow-y: auto;"></div>
@@ -136,11 +154,8 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Response data:', data);  // Log the response data for debugging
                     if (data.message) {
                         displayMessage("Assistant", data.message);
-                    } else {
-                        console.error('No message in response:', data);
                     }
                 })
                 .catch(error => {
@@ -150,7 +165,6 @@
         });
 
         function displayMessage(sender, message) {
-            console.log('Displaying message:', message);  // Log the message to be displayed for debugging
             const conversation = document.getElementById('chatbot-conversation');
             const messageElement = document.createElement('div');
             messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
