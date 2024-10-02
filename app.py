@@ -48,85 +48,184 @@ def stripe_webhook():
         logger.error("Unexpected error while processing webhook.", exc_info=True)
         return jsonify({'error': 'Unexpected error'}), 500
 
-    # Handle the checkout session completed event (grant premium status)
+    # Handle the event
     if event['type'] == 'checkout.session.completed':
-        session_data = event['data']['object']
-        customer_email = session_data.get('customer_details', {}).get('email')
-        subscription_id = session_data.get('subscription')
-        logger.info(f"Checkout session completed for {customer_email} with subscription ID {subscription_id}.")
-
-        if customer_email and subscription_id:
-            try:
-                grant_premium_status_and_store_subscription(customer_email, subscription_id)
-            except Exception as e:
-                logger.error(f"Error granting premium status and storing subscription ID for {customer_email}: {e}", exc_info=True)
-        else:
-            logger.error("Checkout session completed but customer email or subscription ID is missing.")
-
-    # Handle the subscription deleted event (remove premium status at the end of the billing cycle)
+        handle_checkout_session_completed(event)
+    elif event['type'] == 'customer.subscription.updated':
+        handle_subscription_updated(event)
     elif event['type'] == 'customer.subscription.deleted':
-        subscription_data = event['data']['object']
-        customer_email = subscription_data.get('customer_email')
-        logger.info(f"Subscription canceled for {customer_email}.")
-
-        if customer_email:
-            try:
-                remove_premium_status_by_email(customer_email)
-            except Exception as e:
-                logger.error(f"Error removing premium status for {customer_email}: {e}", exc_info=True)
-        else:
-            logger.error("Subscription canceled but customer email is missing.")
+        handle_subscription_deleted(event)
+    elif event['type'] == 'invoice.payment_failed':
+        handle_payment_failed(event)
+    elif event['type'] == 'invoice.payment_succeeded':
+        handle_payment_succeeded(event)
+    else:
+        logger.info(f"Unhandled event type: {event['type']}")
 
     logger.info("Stripe webhook processed successfully.")
     return jsonify({'status': 'success'}), 200
 
 
-# Function to grant premium status and store subscription ID in the database
-def grant_premium_status_and_store_subscription(customer_email, subscription_id):
-    logger.info(f"Attempting to grant premium status and store subscription ID for {customer_email}.")
+def handle_checkout_session_completed(event):
+    session_data = event['data']['object']
+    customer_id = session_data.get('customer')
+    subscription_id = session_data.get('subscription')
+    customer_email = session_data.get('customer_details', {}).get('email')
+    logger.info(f"Checkout session completed for customer {customer_id} with subscription ID {subscription_id}.")
 
-    # Call the API to get the user ID based on email
+    if customer_id and subscription_id and customer_email:
+        try:
+            grant_premium_status_and_store_subscription(customer_id, subscription_id, customer_email)
+        except Exception as e:
+            logger.error(f"Error granting premium status and storing subscription ID for customer {customer_id}: {e}", exc_info=True)
+    else:
+        logger.error("Checkout session completed but customer ID, email, or subscription ID is missing.")
+
+
+def handle_subscription_updated(event):
+    subscription = event['data']['object']
+    customer_id = subscription.get('customer')
+    status = subscription.get('status')
+    logger.info(f"Subscription updated for customer {customer_id}, status: {status}.")
+
+    if status == 'active':
+        # Subscription is active, ensure premium status
+        grant_premium_status(customer_id)
+    elif status in ['past_due', 'unpaid']:
+        # Payment issues, consider revoking premium status
+        logger.warning(f"Payment issues for customer {customer_id}, status: {status}.")
+        # Optionally, notify the user or take action
+    elif status == 'canceled':
+        # Subscription canceled, handle accordingly
+        remove_premium_status(customer_id)
+
+
+def handle_subscription_deleted(event):
+    subscription = event['data']['object']
+    customer_id = subscription.get('customer')
+    cancel_at_period_end = subscription.get('cancel_at_period_end')
+
+    if cancel_at_period_end:
+        logger.info(f"Subscription for customer {customer_id} will cancel at period end.")
+        # Optionally, schedule premium status removal
+    else:
+        logger.info(f"Subscription for customer {customer_id} canceled immediately.")
+        remove_premium_status(customer_id)
+
+
+def handle_payment_failed(event):
+    invoice = event['data']['object']
+    customer_id = invoice.get('customer')
+    logger.warning(f"Payment failed for customer {customer_id}.")
+    # Optionally, notify the user or take action
+
+
+def handle_payment_succeeded(event):
+    invoice = event['data']['object']
+    customer_id = invoice.get('customer')
+    logger.info(f"Payment succeeded for customer {customer_id}.")
+    # Ensure premium status is active
+    grant_premium_status(customer_id)
+
+
+# Function to grant premium status and store subscription ID in the database
+def grant_premium_status_and_store_subscription(customer_id, subscription_id, customer_email):
+    logger.info(f"Attempting to grant premium status and store subscription ID for customer {customer_id}.")
+
+    # Call the API to get the user ID based on customer_id
     get_user_id_url = f"{API_URL}/users/search"
     try:
-        # Search user by email
-        user_response = requests.get(get_user_id_url, params={'email': customer_email})
+        # First, try to find the user by stripe_customer_id
+        user_response = requests.get(get_user_id_url, params={'stripe_customer_id': customer_id})
         user_response.raise_for_status()
         user_data = user_response.json()
 
         user_id = user_data.get('id')
-        if not user_id:
-            logger.error(f"User with email {customer_email} not found.")
-            return
 
-        # Grant premium status using the user's email
-        grant_premium_url = f"{API_URL}/user/premium/grant_by_email"
-        response = requests.put(grant_premium_url, json={'email': customer_email})
+        if not user_id:
+            # If user not found by customer_id, possibly it's the first time, so associate the customer_id with the user
+            # Search user by email
+            user_response = requests.get(get_user_id_url, params={'email': customer_email})
+            user_response.raise_for_status()
+            user_data = user_response.json()
+
+            user_id = user_data.get('id')
+            if not user_id:
+                logger.error(f"User with email {customer_email} not found.")
+                return
+
+            # Update the user with stripe_customer_id
+            update_customer_id_url = f"{API_URL}/user/{user_id}/stripe/customer"
+            update_response = requests.put(update_customer_id_url, json={'stripe_customer_id': customer_id})
+            update_response.raise_for_status()
+            logger.info(f"Stripe customer ID {customer_id} stored for user ID {user_id}.")
+
+        # Now, grant premium status
+        grant_premium_url = f"{API_URL}/user/{user_id}/premium/grant"
+        response = requests.put(grant_premium_url)
         response.raise_for_status()
-        logger.info(f"Premium status successfully granted for {customer_email}.")
+        logger.info(f"Premium status successfully granted for user ID {user_id}.")
 
         # Store Stripe subscription ID using the user's ID
         set_subscription_url = f"{API_URL}/user/{user_id}/stripe/subscription"
         subscription_response = requests.put(set_subscription_url, json={'stripe_subscription_id': subscription_id})
         subscription_response.raise_for_status()
-        logger.info(f"Subscription ID {subscription_id} stored for user {customer_email} (ID: {user_id}).")
+        logger.info(f"Subscription ID {subscription_id} stored for user ID {user_id}.")
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to grant premium status or store subscription ID for {customer_email}: {e}", exc_info=True)
+        logger.error(f"Failed to grant premium status or store subscription ID for customer {customer_id}: {e}", exc_info=True)
 
 
-# Function to remove premium status when a subscription is canceled
-def remove_premium_status_by_email(customer_email):
-    logger.info(f"Attempting to remove premium status for {customer_email}.")
-
-    # Call the API to remove premium status using the user's email
-    remove_premium_url = f"{API_URL}/user/premium/remove_by_email"
+# Function to grant premium status
+def grant_premium_status(customer_id):
+    logger.info(f"Granting premium status for customer {customer_id}.")
+    # Call the API to get the user ID based on customer_id
+    get_user_id_url = f"{API_URL}/users/search"
     try:
-        response = requests.put(remove_premium_url, json={'email': customer_email})
-        response.raise_for_status()
+        # Search user by stripe_customer_id
+        user_response = requests.get(get_user_id_url, params={'stripe_customer_id': customer_id})
+        user_response.raise_for_status()
+        user_data = user_response.json()
 
-        logger.info(f"Premium status successfully removed for {customer_email}.")
+        user_id = user_data.get('id')
+        if not user_id:
+            logger.error(f"User with Stripe customer ID {customer_id} not found.")
+            return
+
+        # Grant premium status using the user's ID
+        grant_premium_url = f"{API_URL}/user/{user_id}/premium/grant"
+        response = requests.put(grant_premium_url)
+        response.raise_for_status()
+        logger.info(f"Premium status successfully granted for user ID {user_id}.")
+
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to remove premium status for {customer_email}. Response: {e}", exc_info=True)
+        logger.error(f"Failed to grant premium status for customer {customer_id}: {e}", exc_info=True)
+
+
+# Function to remove premium status
+def remove_premium_status(customer_id):
+    logger.info(f"Removing premium status for customer {customer_id}.")
+    # Call the API to get the user ID based on customer_id
+    get_user_id_url = f"{API_URL}/users/search"
+    try:
+        # Search user by stripe_customer_id
+        user_response = requests.get(get_user_id_url, params={'stripe_customer_id': customer_id})
+        user_response.raise_for_status()
+        user_data = user_response.json()
+
+        user_id = user_data.get('id')
+        if not user_id:
+            logger.error(f"User with Stripe customer ID {customer_id} not found.")
+            return
+
+        # Remove premium status using the user's ID
+        remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
+        response = requests.put(remove_premium_url)
+        response.raise_for_status()
+        logger.info(f"Premium status successfully removed for user ID {user_id}.")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to remove premium status for customer {customer_id}: {e}", exc_info=True)
 
 
 if __name__ == '__main__':
