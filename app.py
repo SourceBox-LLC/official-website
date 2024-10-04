@@ -185,7 +185,9 @@ def grant_premium_status(customer_id):
 def remove_premium_status(customer_id):
     logger.info(f"Removing premium status for customer {customer_id}.")
     get_user_id_url = f"{API_URL}/users/search"
+    
     try:
+        # Fetch user ID based on Stripe customer ID
         user_response = requests.get(get_user_id_url, params={'stripe_customer_id': customer_id})
         user_response.raise_for_status()
         user_data = user_response.json()
@@ -195,6 +197,15 @@ def remove_premium_status(customer_id):
             logger.error(f"User with Stripe customer ID {customer_id} not found.")
             return
 
+        # Check if the subscription ID exists for the user
+        stripe_subscription_id = user_data.get('stripe_subscription_id')
+        if not stripe_subscription_id:
+            logger.error(f"No subscription ID found for user ID {user_id} (Customer ID: {customer_id}).")
+            return
+
+        logger.info(f"Removing premium status for user ID {user_id} with Stripe subscription ID {stripe_subscription_id}.")
+        
+        # Make request to remove premium status
         remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
         response = requests.put(remove_premium_url)
         response.raise_for_status()
@@ -202,6 +213,7 @@ def remove_premium_status(customer_id):
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to remove premium status for customer {customer_id}: {e}", exc_info=True)
+
 
 
 if __name__ == '__main__':
