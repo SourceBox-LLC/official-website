@@ -203,8 +203,8 @@ def remove_premium_status(customer_id):
             logger.error(f"No subscription ID found for user ID {user_id} (Customer ID: {customer_id}).")
             return
 
-        logger.info(f"Removing premium status for user ID {user_id} with Stripe subscription ID {stripe_subscription_id}.")
-        
+        logger.info(f"User ID: {user_id}, Stripe Subscription ID: {stripe_subscription_id}")
+
         # Make request to remove premium status
         remove_premium_url = f"{API_URL}/user/{user_id}/premium/remove"
         response = requests.put(remove_premium_url)
@@ -213,6 +213,7 @@ def remove_premium_status(customer_id):
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to remove premium status for customer {customer_id}: {e}", exc_info=True)
+
 
 
 
