@@ -2,19 +2,21 @@
 {% block title %}Docs{% endblock %}
 {% block content %}
 <div class="row">
+  <!-- Sidebar Navigation with Adjusted Fixed Positioning -->
   <div class="col-4">
-    <nav id="navbar-example3" class="h-100 flex-column align-items-stretch pe-4 border-end">
+    <nav id="navbar-example3" class="h-100 flex-column align-items-stretch pe-4 border-end" style="position: fixed; top: 80px; left: 15px; width: 200px;">
       <nav class="nav nav-pills flex-column">
-        <a class="nav-link" href="#item-1" onclick="toggleAccordion('collapseOne')">Welcome</a>
-        <a class="nav-link" href="#item-2" onclick="toggleAccordion('collapseTwo')">Pack-Man</a>
-        <a class="nav-link" href="#item-3" onclick="toggleAccordion('collapseThree')">SourceLightning</a>
-        <a class="nav-link" href="#item-4" onclick="toggleAccordion('collapseFour')">DeepQuery</a>
-        <a class="nav-link" href="#item-5" onclick="toggleAccordion('collapseFive')">DeepQuery Code</a>
+        <a class="nav-link" href="#item-1" onclick="toggleAccordion('collapseOne', '#headingOne')">Welcome</a>
+        <a class="nav-link" href="#item-2" onclick="toggleAccordion('collapseTwo', '#headingTwo')">Pack-Man</a>
+        <a class="nav-link" href="#item-3" onclick="toggleAccordion('collapseThree', '#headingThree')">SourceLightning</a>
+        <a class="nav-link" href="#item-4" onclick="toggleAccordion('collapseFour', '#headingFour')">DeepQuery</a>
+        <a class="nav-link" href="#item-5" onclick="toggleAccordion('collapseFive', '#headingFive')">DeepQuery Code</a>
       </nav>
     </nav>
   </div>
 
-  <div class="col-8">
+  <!-- Main Content Area -->
+  <div class="col-8" style="margin-left: 230px;">
     <div class="accordion" id="accordionExample">
       <!-- Welcome Accordion -->
       <div class="accordion-item">
@@ -23,7 +25,7 @@
             Welcome
           </button>
         </h2>
-        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
           <div class="accordion-body">
             <h4 id="our-mission">Our Mission</h4>
             <p>
@@ -119,17 +121,18 @@
 </style>
 
 <script>
-  function toggleAccordion(collapseID, anchorID = null) {
+  function toggleAccordion(collapseID, headerID) {
     var collapseElement = document.getElementById(collapseID);
     if (collapseElement) {
-      var bsCollapse = new bootstrap.Collapse(collapseElement, {
-        toggle: true
-      });
+      var bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: true });
     }
-    if (anchorID) {
+    if (headerID) {
       setTimeout(() => {
-        document.querySelector(anchorID)?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+        var headerElement = document.querySelector(headerID);
+        if (headerElement) {
+          headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300); // Delay to allow the accordion to open before scrolling
     }
   }
 </script>
