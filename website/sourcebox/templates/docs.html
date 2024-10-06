@@ -104,6 +104,20 @@
   </div>
 </div>
 
+<!-- Custom CSS to Ensure Content Stays within Accordion Boundaries -->
+<style>
+  .accordion-body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .accordion-body pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+</style>
+
 <script>
   function toggleAccordion(collapseID, anchorID = null) {
     var collapseElement = document.getElementById(collapseID);

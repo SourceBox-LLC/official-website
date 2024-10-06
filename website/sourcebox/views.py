@@ -311,7 +311,7 @@ def documentation():
     deepquery_code_readme_html = fetch_readme(deepquery_code_repo_url, "DeepQuery Code")
 
     # Record user history
-    record_user_history("entered docs")
+    #record_user_history("entered docs")
 
     # Pass all README content to the template
     return render_template('docs.html', 
