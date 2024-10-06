@@ -156,9 +156,9 @@ def dashboard():
 
 
 @views.route('/updates')
-@token_required
 def updates():
-    response = requests.get(f"{API_URL}/platform_updates")
+    # Use the new '/platform_updates/list' endpoint to get updates
+    response = requests.get(f"{API_URL}/platform_updates/list")
     if response.status_code == 200:
         all_updates = response.json()
         record_user_history("entered updates")
@@ -166,6 +166,8 @@ def updates():
     else:
         flash('Failed to retrieve updates', 'error')
         return redirect(url_for('views.landing'))
+
+
 
 @views.route('/content')
 @token_required
