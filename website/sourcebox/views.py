@@ -11,6 +11,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import shutil, tempfile, subprocess
 import stripe
+import markdown
 
 load_dotenv()
 
@@ -297,8 +298,46 @@ def launch_u_studio():
 
 @views.route('/docs')
 def documentation():
+    # URLs for the README.md files in Pack-Man, Source-Lightning, DeepQuery, and DeepQuery Code repositories
+    packman_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-packman/master/README.md"
+    sourcelightning_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-sourcelightning/master/README.md"
+    deepquery_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-deepquery/master/README.md"
+    deepquery_code_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-deepquery-code/master/README.md"
+
+    # Fetch README.md content for each repository
+    packman_readme_html = fetch_readme(packman_repo_url, "Pack-Man")
+    sourcelightning_readme_html = fetch_readme(sourcelightning_repo_url, "Source-Lightning")
+    deepquery_readme_html = fetch_readme(deepquery_repo_url, "DeepQuery")
+    deepquery_code_readme_html = fetch_readme(deepquery_code_repo_url, "DeepQuery Code")
+
+    # Record user history
     record_user_history("entered docs")
-    return render_template('docs.html')
+
+    # Pass all README content to the template
+    return render_template('docs.html', 
+                           packman_readme_html=packman_readme_html, 
+                           sourcelightning_readme_html=sourcelightning_readme_html,
+                           deepquery_readme_html=deepquery_readme_html,
+                           deepquery_code_readme_html=deepquery_code_readme_html)
+
+
+def fetch_readme(repo_url, repo_name):
+    """
+    Fetch README.md from a GitHub repository and convert it to HTML.
+    """
+    try:
+        response = requests.get(repo_url)
+        if response.status_code == 200:
+            readme_content = response.text
+            return markdown.markdown(readme_content)
+        else:
+            return f"<p>Failed to load {repo_name} documentation from GitHub.</p>"
+    except Exception as e:
+        return f"<p>Error loading {repo_name} documentation: {str(e)}</p>"
+
+
+
+
 
 @views.route('/user_settings')
 @token_required

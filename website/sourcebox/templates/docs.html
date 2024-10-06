@@ -5,71 +5,119 @@
   <div class="col-4">
     <nav id="navbar-example3" class="h-100 flex-column align-items-stretch pe-4 border-end">
       <nav class="nav nav-pills flex-column">
-        <a class="nav-link" href="#item-1">Welcome</a>
-        <nav class="nav nav-pills flex-column">
-          <a class="nav-link ms-3 my-1" href="#item-1-1">Demos</a>
-          <a class="nav-link ms-3 my-1" href="#item-1-2">Services</a>
-        </nav>
-        <a class="nav-link" href="#item-2">Pack-Man</a>
-        <nav class="nav nav-pills flex-column">
-          <a class="nav-link ms-3 my-1" href="#item-2-1">SourcePacks</a>
-          <a class="nav-link ms-3 my-1" href="#item-2-2">CodePacks</a>
-        </nav>
-        <a class="nav-link" href="#item-3">Source-Lightning</a>
-        <nav class="nav nav-pills flex-column">
-          <a class="nav-link ms-3 my-1" href="#item-3-1">No Code Deployment</a>
-          <a class="nav-link ms-3 my-1" href="#item-3-2">Dev-Lightning</a>
-        </nav>
+        <a class="nav-link" href="#item-1" onclick="toggleAccordion('collapseOne')">Welcome</a>
+        <a class="nav-link" href="#item-2" onclick="toggleAccordion('collapseTwo')">Pack-Man</a>
+        <a class="nav-link" href="#item-3" onclick="toggleAccordion('collapseThree')">SourceLightning</a>
+        <a class="nav-link" href="#item-4" onclick="toggleAccordion('collapseFour')">DeepQuery</a>
+        <a class="nav-link" href="#item-5" onclick="toggleAccordion('collapseFive')">DeepQuery Code</a>
       </nav>
     </nav>
   </div>
 
   <div class="col-8">
-    <div data-bs-spy="scroll" data-bs-target="#navbar-example3" data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
-      <div id="item-1">
-        <h4>Welcome to SourceBox!</h4>
-        <br/>
-        <p>SourceBox is a machine learning platform for both developers and consumers alike. Use our demos to get the most out of LLM's beyond ChatGPT and similar models. Harness the power of frameworks such as langchain and platforms like huggingface for a uniqe LLM experience. Spin up chat bots quick and easy with WikiDoc for custom Q/A from multiple data sources of different types including databases. Automate parts of LLM development with tools like CodeDoc. Use tools like Source-Lightning to download instantly executable UI included models to run and test localy fast as lightning! Do all this and more all in one place with SourceBox!</p>
+    <div class="accordion" id="accordionExample">
+      <!-- Welcome Accordion -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Welcome
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <h4 id="our-mission">Our Mission</h4>
+            <p>
+              At SourceBox, our mission is to simplify the integration of data with advanced AI tools, making it accessible and user-friendly for everyone.
+            </p>
+            <h4 id="services">Services</h4>
+            <p>
+              We provide a robust set of tools and platforms for data retrieval, packaging, and deployment.
+            </p>
+            <h4 id="support">Support</h4>
+            <p>
+              Our team is here to provide comprehensive support for your data integration and AI projects.
+            </p>
+          </div>
+        </div>
       </div>
-      <div id="item-1-1">
-        <h5>Demos</h5>
-        <p><strong>Get started right away with SourceBox demos.</strong> Demos are downloadable and instantly executable micro applications hosted on the SourceBox platform to provide services, display, and discover use cases for LLM's. WikiDoc and CodeDoc are two examples of demos available on the SourceBox platform.</p>
+
+      <!-- Pack-Man Accordion -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Pack-Man
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <!-- Dynamically loaded Pack-Man README content -->
+            {{ packman_readme_html|safe }}
+          </div>
+        </div>
       </div>
-      <div id="item-1-2">
-        <h5>Services</h5>
-        <p><strong>Get the most out of local LLM's with SourceBox services.</strong> SourceBox services range from no code services to developer project starter kits
-        </div></p>
+
+      <!-- Source-Lightning Accordion -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            Source-Lightning
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <!-- Dynamically loaded Source-Lightning README content -->
+            {{ sourcelightning_readme_html|safe }}
+          </div>
+        </div>
       </div>
-      <div id="item-2">
-        <h4>Pack-Man</h4>
-        <p><strong>Safely put your personal data to work.</strong> Pack-Man is a data package manager service for creating, storing, and managing "packs" of custom data to use dynamicaly on various services across the SourceBox platform! For example you can connect packs to Source-Lightning and WikiDoc for easy custom Q/A, downloadable models, and templates with your own data included. All pack data is encrypted and optionaly stored on the SourceBox platform. Packs are also directly downloadable so you can keep your data local and even more secure. You can have peace of mind knowing your data is yours. Once you build a package the data is then encrypted and optionaly stored in our database or downloaded. Each downloaded pack comes with a "key" to undo the encryption to use outside of SourceBox services. <strong>Note: you do not need to decrypt packs to use them with SourceBox services. You only need to decrypt packs for usage outside SourceBox</strong>.</p>
+
+      <!-- DeepQuery Accordion -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFour">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+            DeepQuery
+          </button>
+        </h2>
+        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <!-- Dynamically loaded DeepQuery README content -->
+            {{ deepquery_readme_html|safe }}
+          </div>
+        </div>
       </div>
-      <div id="item-2-1">
-        <h5>SourcePacks</h5>
-        <p>SourcePacks are standard data packages that can be used accross the SourceBox platform on any service that is connected to Pack-Man. Build your SourcePacks by uploading local files, code, scraping webpages, and connecting databases.</p>
-      </div>
-      <div id="item-2-2">
-        <h5>CodePacks</h5>
-        <p><strong>CodePacks are like SourcePacks but for code related data specifically. </strong>CodePacks can also be used across the sourceBox platform on <strong>most</strong> services connected to the package manager (Pack-Man). CodePacks can be used to customize lightning templates and RAG (retrieval augmented generation) related services for more custom templates and generative solutions.</p>
-      </div>
-      <div id="item-3">
-        <h4>Source-Lightning</h4>
-        <p><strong>Go beyond the cloud with Source-Lightning.</strong> The cloud is great but local is better, with Source-Lightning you can keep your data grounded and finally get your head out of the clouds (or your LLM's that is)! From instantly executable no code applications to robust starter code templates, start and finish your LLM projects in a flash with Source-Ligtning. Weather you are a software developer or have never touched a line of code in your life Lightning makes LLM's easy to customize and use locally right out of the box!</p>
-      </div>
-      <div id="item-3-1">
-        <h5>No Code Deployment</h5>
-        <p><strong>SourceBox is the place to be for easy, local, no code LLM deployment and execution.</strong> You dont need to know anything about LLM's or code to use Source-Lightning! Design and build your own instantly executable machine learning application for yourself or your business without a single line of code with a friendly, easy to use user interface.</p>
-      </div>
-      <div id="item-3-2">
-        <h5>Dev-Lightning</h5>
-        <p><strong>Start and finish your LLM coding projects lightning fast.</strong> Download robust lightning templates for any occasion! From simple starter code to large project templates, let us get started for you!</p>
+
+      <!-- DeepQuery Code Accordion -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFive">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+            DeepQuery Code
+          </button>
+        </h2>
+        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <!-- Dynamically loaded DeepQuery Code README content -->
+            {{ deepquery_code_readme_html|safe }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 <script>
-  var scrollSpy = new bootstrap.ScrollSpy(document.body, {
-    target: '#navbar-example3'
-  });
+  function toggleAccordion(collapseID, anchorID = null) {
+    var collapseElement = document.getElementById(collapseID);
+    if (collapseElement) {
+      var bsCollapse = new bootstrap.Collapse(collapseElement, {
+        toggle: true
+      });
+    }
+    if (anchorID) {
+      setTimeout(() => {
+        document.querySelector(anchorID)?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  }
 </script>
+
 {% endblock %}
