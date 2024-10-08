@@ -119,10 +119,28 @@ h1, h2, h3, h4, h5, h6, p, div {
 /*TESTING*/
 /* Typography */
 body {
-    font-family: 'Roboto', sans-serif; /* Use a professional font */
-    line-height: 1.6;
+    background: radial-gradient(circle at 20% 20%, #ff9a9e, transparent 25%),
+                radial-gradient(circle at 80% 30%, #fad0c4, transparent 25%),
+                radial-gradient(circle at 50% 70%, #fbc2eb, transparent 25%),
+                radial-gradient(circle at 30% 80%, #a1c4fd, transparent 25%),
+                radial-gradient(circle at 70% 90%, #c2e9fb, transparent 25%);
+    background-blend-mode: multiply;
+    background-color: #ffffff; /* Fallback color */
+    animation: flow 10s infinite alternate;
+    background-size: 200% 200%;
 }
 
+@keyframes flow {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
 
 
 /* Spacing */
