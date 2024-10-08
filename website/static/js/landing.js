@@ -208,4 +208,26 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadLink.attr('href', `/download_plate/${filename}`);
         $('#dropdownMenuButton').text($(this).text());
     });
+
+    // Intersection Observer for animations on view
+    const elementsToAnimate = document.querySelectorAll('.animate-on-view');
+
+    const observerOptions = {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px',
+        threshold: 0.1 // Trigger when 10% of the element is visible
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                observer.unobserve(entry.target); // Stop observing once the animation is triggered
+            }
+        });
+    }, observerOptions);
+
+    elementsToAnimate.forEach(element => {
+        observer.observe(element);
+    });
 });
