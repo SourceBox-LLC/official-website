@@ -1,212 +1,3 @@
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    filter: invert(1);
-}
-
-
-/*video background CSS*/
-.video-background {
-    position: relative;
-    width: 100%;
-    height: 20vh; /* Adjust based on your needs */
-    overflow: hidden;
-    border-radius: 15px; /* This rounds the corners of the container */
-    z-index: 1; /* Added to create a new stacking context */
-}
-    
-.video-background video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: -1;
-    transform: translate(-50%, -50%);
-    background-size: cover;
-    /* Remove border-radius here as it's not necessary if the container clips the content */
-}
-
-
-
-h1, h2, h3, h4, h5, h6, p, div {
-    font-family: 'Open Sans', sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400; /* You can change this to 800 or any other weight you've loaded */
-    font-style: normal;
-    font-variation-settings:
-    "wdth" 100;
-}
-
-
-/* Navbar Styles */
-.navbar {
-    background: linear-gradient(135deg, #eae7fe, #d390fc); /* Gradient background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 10px 20px;
-    border-radius: 0 0 10px 10px; /* Rounded bottom corners */
-    transition: background 0.3s ease;
-}
-
-.navbar-brand {
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.5rem;
-    transition: color 0.3s ease;
-}
-
-.navbar-brand:hover {
-    color: #f56056; /* Hover color for brand */
-}
-
-.navbar-nav .nav-link {
-    color: #fff;
-    margin-right: 15px;
-    transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.navbar-nav .nav-link:hover {
-    color: #f56056; /* Hover color for links */
-    transform: scale(1.1); /* Slightly enlarge on hover */
-}
-
-.navbar-toggler {
-    border: none;
-    background-color: #f56056; /* Toggler button color */
-    transition: background-color 0.3s ease;
-}
-
-.navbar-toggler:hover {
-    background-color: #fc8e86; /* Hover color for toggler */
-}
-
-
-
-
-
-.background-color {
-    background-color: #f5ebf1;
-}
-
-/*LLM landing page examples*/
-.box-color {
-    background-color: #e1f4fa;
-}
-
-/*landing pitch sections*/
-.box-color2 {
-    position: relative;
-    background: linear-gradient(135deg, #e1f4fa, #d4d4d4); /* Gradient background */
-    border-radius: 0.5rem; /* Match Bootstrap's rounded-4 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 86, 179, 0.2); /* Subtle shadow */
-    padding: 20px;
-    overflow: hidden; /* Ensure the pseudo-element is contained */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.box-color2 {
-    position: relative;
-    background: #e1f4fa; /* Start with a solid color */
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 86, 179, 0.2);
-    padding: 20px;
-    overflow: hidden;
-    animation: fadeInGradient 2s ease-in-out forwards; /* Apply fade-in animation */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-@keyframes fadeInGradient {
-    0% {
-        background: #e1f4fa; /* Start color */
-    }
-    100% {
-        background: linear-gradient(135deg, #e1f4fa, #d4d4d4); /* Target gradient */
-    }
-}
-
-.box-color2::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    z-index: -1;
-    background: linear-gradient(135deg, #0056b3, #f56056);
-    border-radius: inherit;
-}
-
-.box-color2:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 86, 179, 0.3);
-}
-
-
-
-/*light purple content box color*/
-.box-color3 {
-    background-color: #eae7fe;
-}
-
-.box-color4 {
-    background-color: #faf7fc;
-}
-
-/* content box sizes*/
-.box-size1 {
-    min-width: 25vw;
-}
-
-/* Make carousel initially invisible */
-.invisible-carousel {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.invisible-section {
-    opacity: 0;
-    visibility: hidden;
-
-}
-
-/* Smooth transition for fading in */
-.fade-in {
-    transition: opacity 2s ease-in-out, visibility 2s ease-in-out;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-
-.img {
-    width: 100%; /* Make the image fill the box */
-    height: auto; /* Keep the image's aspect ratio */
-    border-radius: 15px;
-    max-height: 500px;
-}
-
-
-
-/*landing pitch content transiton*/
-.col.fs-4 p {
-    transition: all 0.7s ease-in-out;
-}
-
-
-/*highlights top cars on landing page on mouse hover*/
-.highlighted {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a shadow for highlight effect */
-    transform: scale(1.02); /* Slightly increase size */
-    transition: all 0.3s ease-in-out; /* Make the transform smooth */
-    z-index: 10; /* Ensure the card is above other content */
-}
-.card:hover svg {
-    transition: all 0.5s ease-in-out;
-    transform: scale(1.5); /* Scale the SVG to 150% of its size */
-}
-
-
-/*TESTING*/
 /* Typography */
 body {
     background: radial-gradient(circle at 20% 20%, #ff9a9e, transparent 25%),
@@ -215,7 +6,7 @@ body {
                 radial-gradient(circle at 30% 80%, #a1c4fd, transparent 25%),
                 radial-gradient(circle at 70% 90%, #c2e9fb, transparent 25%);
     background-blend-mode: multiply;
-    background-color: #ffffff; /* Fallback color */
+    background-color: #ffffff;
     animation: flow 10s infinite alternate;
     background-size: 200% 200%;
 }
@@ -233,6 +24,193 @@ body {
 }
 
 
+h1, h2, h3, h4, h5, h6, p, div {
+    font-family: 'Open Sans', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
+/* Navbar Styles */
+.navbar {
+    background: linear-gradient(135deg, #eae7fe, #d390fc);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    border-radius: 0 0 10px 10px;
+    transition: background 0.3s ease;
+}
+
+.navbar-brand {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #f56056;
+}
+
+.navbar-nav .nav-link {
+    color: #fff;
+    margin-right: 15px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #f56056;
+    transform: scale(1.1);
+}
+
+.navbar-toggler {
+    border: none;
+    background-color: #f56056;
+    transition: background-color 0.3s ease;
+}
+
+.navbar-toggler:hover {
+    background-color: #fc8e86;
+}
+
+
+/* Video background CSS */
+.video-background {
+    position: relative;
+    width: 100%;
+    height: 20vh;
+    overflow: hidden;
+    border-radius: 15px;
+    z-index: 1;
+}
+
+.video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    background-size: cover;
+}
+
+.img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    max-height: auto;
+}
+
+
+
+/* Carousel control icons */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+
+/* Make carousel initially invisible */
+.invisible-carousel,
+.invisible-section {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Smooth transition for fading in */
+.fade-in {
+    transition: opacity 2s ease-in-out, visibility 2s ease-in-out;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+
+
+.background-color {
+    background-color: white;
+}
+
+@keyframes fadeInGradient {
+    0% {
+        background: transparent;
+    }
+    100% {
+        background: linear-gradient(135deg, #e1f4fa, #d4d4d4);
+    }
+}
+
+
+
+.box-color2 {
+    position: relative; /* Ensure positioning context for ::before */
+    overflow: hidden; /* Hide overflow from ::before */
+}
+
+.box-color2::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background: transparent;
+    border-radius: inherit;
+    transition: background 0.3s ease;
+}
+
+.box-color2:hover::before {
+    background: linear-gradient(135deg, #f56056, #0056b3);
+}
+
+.box-color2:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 86, 179, 0.3);
+}
+
+/* Light purple content box color */
+.box-color3 {
+    background-color: #eae7fe;
+}
+
+.header-color {
+    background: linear-gradient(135deg, #f56056, #0056b3);
+    width: 100%;
+    max-width: 100vw; /* Ensure it doesn't exceed the viewport width */
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
+}
+/* Content box sizes */
+.box-size1 {
+    min-width: 25vw;
+}
+
+
+
+
+/* Landing pitch content transition */
+.col.fs-4 p {
+    transition: all 0.7s ease-in-out;
+}
+
+/* Highlights top cards on landing page on mouse hover */
+.highlighted {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transform: scale(1.02);
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+}
+
+.card:hover svg {
+    transition: all 0.5s ease-in-out;
+    transform: scale(1.5);
+}
+
+
+
 /* Spacing */
 .container, .row, .col {
     padding: 20px;
@@ -241,7 +219,7 @@ body {
 
 /* Colors */
 .btn-primary {
-    background-color: #0056b3; /* Consistent button color */
+    background-color: #0056b3;
     border-color: #004494;
 }
 
@@ -275,8 +253,6 @@ body {
     animation: fadeOut 0.5s forwards;
 }
 
-
-
 @keyframes fadeOut {
     from {
         opacity: 1;
@@ -299,18 +275,19 @@ body {
 }
 
 
+
+
 /* Card section responsiveness */
 @media (max-width: 768px) {
     .responsive-card .row {
-      display: flex;
-      flex-direction: column; /* Stack the image and text */
+        display: flex;
+        flex-direction: column;
     }
     .responsive-card .col {
-      width: 100%; /* Ensure full width on smaller screens */
-      text-align: center; /* Optional: center the content */
+        width: 100%;
+        text-align: center;
     }
     .responsive-card .img {
-      margin-bottom: 15px; /* Add space between the image and text */
+        margin-bottom: 15px;
     }
-  }
-
+}

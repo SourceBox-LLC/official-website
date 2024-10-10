@@ -5,34 +5,44 @@
 {% block content %}
 <!--hero background video-->
 <!-- Use Bootstrap's container-fluid for full width -->
-<div class="container-fluid p-0 video-background">
-    <video autoplay loop muted playsinline class="embed-responsive-item">
-        <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-</div>
-<br/>
 
-<div class="container text-center">
-    <div class="row">
-        <div class="col">
 
-            <h1 class="display-2">Open source. Local. Powered by SourceBox 
-                <img class="rounded" src="{{ url_for('static', filename='images/sourcebox-logo.webp') }}" alt="logo" width="80" height="auto">
-            </h1>
 
-            <br/>
 
-            <p>Build, Customize, and Run LLM applications that work right out of the box and more!</p>
 
-            <br/>
-
-            <a href="/dashboard"><button type="button" class="btn btn-primary btn-lg">Dashboard</button></a>
+<div class="full-width-section">
+    <div class="video-background" align="center">
+        <video autoplay loop muted playsinline>
+            <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <br/>
+    <br/>
+    <div class="content-overlay">
+        <h1 class="display-2" align="center">Open source. Simple. Powered by SourceBox
+            <img class="rounded" src="{{ url_for('static', filename='images/sourcebox-logo.webp') }}" alt="logo" width="80" height="auto">
+        </h1>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8 text-center">
+                    <p class="display-6">Build, Customize, and Run LLM applications that work right out of the box and more!</p>
+                </div>
+            </div>
+        </div>
+        <div class="container text-center">
+            <a href="/dashboard" class="btn btn-primary btn-lg ">Dashboard</a>
         </div>
     </div>
 </div>
 <br/>
-
 <div class="container">
     <div class="row justify-content-center invisible-section">
         <div class="col-12 col-sm-6 col-md-4 mb-3"> <!--goes to /updates-->
