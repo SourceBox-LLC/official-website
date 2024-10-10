@@ -34,7 +34,7 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 /* Navbar Styles */
 .navbar {
-    background: linear-gradient(135deg, #eae7fe, #d390fc);
+    background: linear-gradient(135deg, black, black);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px 20px;
     border-radius: 0 0 10px 10px;
@@ -124,6 +124,22 @@ h1, h2, h3, h4, h5, h6, p, div {
     transition: opacity 2s ease-in-out, visibility 2s ease-in-out;
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+
+/* Modal styles */
+.modal-body {
+    background: #eae7fe;
+}
+.modal-header {
+    background: linear-gradient(135deg, #f56056, #0056b3);
+}
+
+.modal-footer {
+    background: linear-gradient(135deg, #f56056, #0056b3);
+}
+.modal-title {
+    color: white;
 }
 
 
@@ -223,7 +239,24 @@ h1, h2, h3, h4, h5, h6, p, div {
     border-color: #004494;
 }
 
+/* Black Button with White Text */
+.btn-black {
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding for size */
+    font-size: 16px; /* Font size */
+    border-radius: 5px; /* Slightly rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
 .btn-primary:hover {
+    background-color: #f56056;
+    border-color: #fc8e86;
+}
+
+.btn-black:hover {
     background-color: #f56056;
     border-color: #fc8e86;
 }
