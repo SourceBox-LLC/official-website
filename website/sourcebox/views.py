@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, session, jsonify, send_from_directory
 from flask_login import login_required
 from werkzeug.utils import secure_filename
-import os, requests
+import os
+import requests
 from website.authentication.auth import token_required
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -9,17 +10,17 @@ import smtplib
 import logging
 from openai import OpenAI
 from dotenv import load_dotenv
-import shutil, tempfile, subprocess
+import shutil
+import tempfile
+import subprocess
 import stripe
 import markdown
 
 load_dotenv()
 
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 views = Blueprint('views', __name__, template_folder='templates')
 
@@ -40,8 +41,6 @@ def record_user_history(action):
         if response.status_code != 201:
             flash('Failed to record user history', 'error')
 
-
-
 @views.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '').lower().strip()
@@ -50,13 +49,11 @@ def search():
         flash('Please enter a search term.', 'danger')
         return redirect(url_for('views.landing'))
 
-    # List of pages and services that can be searched
     available_pages = [
         {'name': 'Dashboard', 'url': url_for('views.dashboard')},
         {'name': 'Updates', 'url': url_for('views.updates')},
         {'name': 'Services', 'url': url_for('views.content')},
-        {'name': 'DeepQuery', 'url': url_for('views.launch_wikidoc')},
-        {'name': 'DeepQuery Code', 'url': url_for('views.launch_codedoc')},
+        {'name': 'DeepQuery', 'url': url_for('views.launch_deepquery')},
         {'name': 'Source Lightning', 'url': url_for('views.launch_source_lightning')},
         {'name': 'Pack-Man', 'url': url_for('views.launch_pack_man')},
         {'name': 'VideoGen', 'url': url_for('views.launch_videogen')},
@@ -69,26 +66,20 @@ def search():
     ]
 
     # Filter results based on the search query
-    matching_pages = [page for page in available_pages if query in page['name'].lower()]
+    results = []
+    for page in available_pages:
+        if query in page['name'].lower():
+            results.append(page)
 
-    if not matching_pages:
-        flash('No matching pages or services found.', 'danger')
+    if not results:
+        flash('No matching pages found.', 'warning')
         return redirect(url_for('views.landing'))
 
-    # Render search results
-    return render_template('search_results.html', query=query, results=matching_pages)
-
-
-
+    return render_template('search_results.html', query=query, results=results)
 
 @views.route('/')
-@views.route('/landing')
 def landing():
     return render_template('landing.html')
-
-@views.route('/learn_more')
-def learn_more():
-    return render_template('learn_more.html')
 
 @views.route('/dashboard')
 @token_required
@@ -98,50 +89,60 @@ def dashboard():
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
-    # Fetch the user ID first
+    # Attempt to fetch user ID
     user_id_url = f"{API_URL}/user/id"
     user_id_response = requests.get(user_id_url, headers=headers)
     if user_id_response.status_code == 200:
         user_id = user_id_response.json().get('user_id')
     else:
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.landing'))
+        logger.warning("Failed to retrieve user ID from %s. Proceeding without user_id-based features.", user_id_url)
+        user_id = None
 
-    # Check if the user is a premium member
-    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
-    response = requests.get(premium_status_url, headers=headers)
-    if response.status_code == 200:
-        premium_data = response.json()
-        is_premium = premium_data.get('premium_status', False)
-    else:
-        is_premium = False  # Default to non-premium if there's an issue
+    # Check if the user is premium only if we have a user_id
+    is_premium = False
+    if user_id:
+        premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+        premium_resp = requests.get(premium_status_url, headers=headers)
+        if premium_resp.status_code == 200:
+            premium_data = premium_resp.json()
+            is_premium = premium_data.get('premium_status', False)
+        else:
+            logger.warning("Could not retrieve premium status for user_id=%s", user_id)
 
     # Fetch user history
-    response = requests.get(f"{API_URL}/user_history", headers=headers)
-    if response.status_code == 200:
-        all_history_items = response.json()
+    history_resp = requests.get(f"{API_URL}/user_history", headers=headers)
+    if history_resp.status_code == 200:
+        all_history_items = history_resp.json()
 
         # Use a set to track seen actions to remove duplicates
         seen_actions = set()
         unique_filtered_items = []
         for item in all_history_items:
-            if item['action'] in ("entered wikidoc", "entered codedoc", "entered source-lightning", "entered pack-man", "entered source-mail") and item['action'] not in seen_actions:
+            if item['action'] in (
+                "entered wikidoc",
+                "entered source-lightning",
+                "entered pack-man",
+                "entered source-mail"
+            ) and item['action'] not in seen_actions:
                 unique_filtered_items.append(item)
                 seen_actions.add(item['action'])
 
-        # Now unique_filtered_items contains unique items by action
+        # Limit to five items
         if len(unique_filtered_items) > 5:
             unique_filtered_items = unique_filtered_items[:5]
 
         # Token usage logic
         free_token_limit = 1000000
-        token_count_url = f'{API_URL}/user/token_usage'
-        response = requests.get(token_count_url, headers=headers)
-        tokens_used = response.json().get('total_tokens', 0)
+        token_count_url = f"{API_URL}/user/token_usage"
+        token_count_response = requests.get(token_count_url, headers=headers)
+        if token_count_response.status_code == 200:
+            tokens_used = token_count_response.json().get('total_tokens', 0)
+        else:
+            logger.warning("Failed to retrieve token usage; defaulting tokens_used=0.")
+            tokens_used = 0
 
         token_percentage_used = (tokens_used / free_token_limit) * 100 if free_token_limit > 0 else 0
 
-        # Pass the premium status and token usage data to the template
         return render_template(
             'dashboard.html',
             is_premium=is_premium,
@@ -151,10 +152,15 @@ def dashboard():
             token_percentage_used=token_percentage_used
         )
     else:
-        flash('Failed to retrieve user history', 'error')
-        return redirect(url_for('views.landing'))
-
-
+        flash("Failed to retrieve user history.", "warning")
+        return render_template(
+            'dashboard.html',
+            is_premium=is_premium,
+            last_5_history_items=[],
+            free_token_limit=0,
+            tokens_used=0,
+            token_percentage_used=0
+        )
 
 @views.route('/updates')
 def updates():
@@ -168,49 +174,40 @@ def updates():
         flash('Failed to retrieve updates', 'error')
         return redirect(url_for('views.landing'))
 
-
-
 @views.route('/content')
 @token_required
 def content():
     record_user_history("entered content")
 
-    # Fetch the access token from the session
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
-    # Fetch the user ID first
+    # Attempt to retrieve user ID
     user_id_url = f"{API_URL}/user/id"
     user_id_response = requests.get(user_id_url, headers=headers)
     if user_id_response.status_code == 200:
         user_id = user_id_response.json().get('user_id')
     else:
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.landing'))
+        logger.warning("Failed to retrieve user ID from %s. Continuing without user-specific data.", user_id_url)
+        user_id = None
 
-    # Check if the user is a premium member
-    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
-    premium_response = requests.get(premium_status_url, headers=headers)
-    
-    if premium_response.status_code == 200:
-        premium_data = premium_response.json()
-        is_premium = premium_data.get('premium_status', False)
-    else:
-        is_premium = False  # Default to non-premium if there's an issue
+    # Check if user is premium only if user_id exists
+    is_premium = False
+    if user_id:
+        premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
+        premium_resp = requests.get(premium_status_url, headers=headers)
+        if premium_resp.status_code == 200:
+            premium_data = premium_resp.json()
+            is_premium = premium_data.get('premium_status', False)
+        else:
+            logger.warning("Could not retrieve premium status for user_id=%s", user_id)
 
-    # Render the content page and pass the premium status
     return render_template('content.html', is_premium=is_premium)
 
-
-@views.route('/content/wikidoc')
+@views.route('/content/deepquery')
 @token_required
-def launch_wikidoc():
-    return redirect(url_for('service.wikidoc'))
-
-@views.route('/content/codedoc')
-@token_required
-def launch_codedoc():
-    return redirect(url_for('service.codedoc'))
+def launch_deepquery():
+    return redirect(url_for('service.deepquery'))
 
 @views.route('/content/source-lightning')
 @token_required
@@ -222,16 +219,9 @@ def launch_source_lightning():
 def launch_pack_man():
     return redirect(url_for('service.pack_man'))
 
-
-@views.route('/content/imagen')
+@views.route('/premium_info')
 @token_required
-def launch_imagen():
-    return redirect(url_for('service.imagen'))
-
-
-@views.route('/content/videogen')
-@token_required
-def launch_videogen():
+def premium_info():
     # Fetch the token from the session
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
@@ -254,126 +244,94 @@ def launch_videogen():
     else:
         is_premium = False
 
-    # Allow access only if the user is premium
+    # Redirect to the dashboard if the user is already premium
     if is_premium:
-        return redirect(url_for('service.videogen'))
+        return redirect(url_for('views.dashboard'))
     else:
-        flash('Access to VideoGen is only available to premium members. Learn more about premium benefits.', 'warning')
-        return redirect(url_for('views.premium_info'))
-
-
-@views.route('/content/u-studio')
-@token_required
-def launch_u_studio():
-    # Fetch the token from the session
-    token = session.get('access_token')
-    headers = {'Authorization': f'Bearer {token}'}
-
-    # Fetch the user ID
-    user_id_url = f"{API_URL}/user/id"
-    user_id_response = requests.get(user_id_url, headers=headers)
-    if user_id_response.status_code == 200:
-        user_id = user_id_response.json().get('user_id')
-    else:
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.landing'))
-
-    # Check if the user is a premium member
-    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
-    response = requests.get(premium_status_url, headers=headers)
-    if response.status_code == 200:
-        premium_data = response.json()
-        is_premium = premium_data.get('premium_status', False)
-    else:
-        is_premium = False
-
-    # Allow access only if the user is premium
-    if is_premium:
-        return redirect(url_for('service.u_studio'))
-    else:
-        flash('Access to U-Studio is only available to premium members. Learn more about premium benefits.', 'warning')
-        return redirect(url_for('views.premium_info'))
-
-
-
-@views.route('/docs')
-def documentation():
-    # URLs for the README.md files in Pack-Man, Source-Lightning, DeepQuery, and DeepQuery Code repositories
-    packman_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-packman/master/README.md"
-    sourcelightning_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-sourcelightning/master/README.md"
-    deepquery_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-deepquery/master/README.md"
-    deepquery_code_repo_url = "https://raw.githubusercontent.com/Sbussiso/sourcebox-deepquery-code/master/README.md"
-
-    # Fetch README.md content for each repository
-    packman_readme_html = fetch_readme(packman_repo_url, "Pack-Man")
-    sourcelightning_readme_html = fetch_readme(sourcelightning_repo_url, "Source-Lightning")
-    deepquery_readme_html = fetch_readme(deepquery_repo_url, "DeepQuery")
-    deepquery_code_readme_html = fetch_readme(deepquery_code_repo_url, "DeepQuery Code")
-
-    # Record user history
-    #record_user_history("entered docs")
-
-    # Pass all README content to the template
-    return render_template('docs.html', 
-                           packman_readme_html=packman_readme_html, 
-                           sourcelightning_readme_html=sourcelightning_readme_html,
-                           deepquery_readme_html=deepquery_readme_html,
-                           deepquery_code_readme_html=deepquery_code_readme_html)
-
-
-def fetch_readme(repo_url, repo_name):
-    """
-    Fetch README.md from a GitHub repository and convert it to HTML.
-    """
-    try:
-        response = requests.get(repo_url)
-        if response.status_code == 200:
-            readme_content = response.text
-            return markdown.markdown(readme_content)
-        else:
-            return f"<p>Failed to load {repo_name} documentation from GitHub.</p>"
-    except Exception as e:
-        return f"<p>Error loading {repo_name} documentation: {str(e)}</p>"
-
-
-
-
+        return render_template('premium_info.html')
 
 @views.route('/user_settings')
 @token_required
 def user_settings():
-    record_user_history("entered settings")
+    record_user_history("entered user_settings")
 
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
-
-    # Fetch the user ID
     user_id_url = f"{API_URL}/user/id"
+
     user_id_response = requests.get(user_id_url, headers=headers)
     if user_id_response.status_code == 200:
         user_id = user_id_response.json().get('user_id')
     else:
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.landing'))
+        logger.warning("Failed to retrieve user ID from %s. Some profile data may be unavailable.", user_id_url)
+        user_id = None
 
-    # Check if the user is a premium member
-    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
-    response = requests.get(premium_status_url, headers=headers)
-    if response.status_code == 200:
-        premium_data = response.json()
-        is_premium = premium_data.get('premium_status', False)
-    else:
-        is_premium = False  # Default to non-premium if there's an issue
+    # Proceed with partial data if user_id is None
+    return render_template('user_settings.html', user_id=user_id)
 
-    return render_template('user_settings.html', is_premium=is_premium)
+@views.route('/documentation')
+def documentation():
+    record_user_history("entered documentation")
+    return render_template('docs.html')
+
+@views.route('/platform_support')
+def platform_support():
+    record_user_history("entered support")
+    return render_template('support.html')
+
+@views.route('/learn_more')
+def learn_more():
+    record_user_history("entered learn_more")
+    return render_template('learn_more.html')
+
+@views.route('/documentation/help')
+def documentation_help():
+    record_user_history("entered doc help")
+    return render_template('help.html')
+
+# First route for support messages
+@views.route('/send_message', methods=['POST'])
+def send_support_message():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    message = request.form.get("message")
+
+    if not name or not email or not message:
+        flash('All fields are required!', 'danger')
+        return redirect(url_for('index'))
+
+    full_message = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = os.getenv('GMAIL_USERNAME')
+        msg['To'] = os.getenv('GMAIL_USERNAME')
+        msg['Subject'] = "SourceBox Support Ticket Request"
+
+        msg.attach(MIMEText(full_message, 'plain'))
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(os.getenv('GMAIL_USERNAME'), os.getenv('GOOGLE_PASSWORD'))
+        server.send_message(msg)
+        server.quit()
+
+        flash('Message sent successfully!', 'success')
+    except smtplib.SMTPAuthenticationError as e:
+        logging.error(f"SMTP Authentication Error: {e}")
+        flash(f'Failed to send message. Error: {str(e)}', 'danger')
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        flash(f'Failed to send message. Error: {str(e)}', 'danger')
+
+    return redirect(url_for('views.platform_support'))
+
 
 # premium unsubscribe page
 @views.route('/premium_unsubscribe', methods=['GET', 'POST'])
 @token_required
 def premium_unsubscribe():
     return render_template('premium_unsubscribe.html')
-
-
 
 # confirmed premium unsubscribe
 @views.route('/premium_unsubscribe_confirm', methods=['POST'])
@@ -434,48 +392,6 @@ def premium_unsubscribe_confirm():
 
     # Redirect the user to the dashboard
     return redirect(url_for('views.dashboard'))
-
-
-
-
-
-
-
-
-
-@views.route('/premium_info')
-@token_required
-def premium_info():
-    # Fetch the token from the session
-    token = session.get('access_token')
-    headers = {'Authorization': f'Bearer {token}'}
-
-    # Fetch the user ID
-    user_id_url = f"{API_URL}/user/id"
-    user_id_response = requests.get(user_id_url, headers=headers)
-    if user_id_response.status_code == 200:
-        user_id = user_id_response.json().get('user_id')
-    else:
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.landing'))
-
-    # Check if the user is a premium member
-    premium_status_url = f"{API_URL}/user/{user_id}/premium/status"
-    response = requests.get(premium_status_url, headers=headers)
-    if response.status_code == 200:
-        premium_data = response.json()
-        is_premium = premium_data.get('premium_status', False)
-    else:
-        is_premium = False
-
-    # Redirect to the dashboard if the user is already premium
-    if is_premium:
-        return redirect(url_for('views.dashboard'))
-    else:
-        return render_template('premium_info.html')
-
-
-
 
 # Download boilerplate landing.html example
 @views.route('/download_plate/<filename>')
@@ -546,8 +462,6 @@ def download_plate(filename):
     else:
         abort(404, description="Repository not found")
 
-
-
 @views.route('/rag-api', methods=['POST'])
 def rag_api():
     try:
@@ -579,8 +493,6 @@ def rag_api():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
 
 @views.route('/rag-api-sentiment', methods=['POST'])
 def rag_api_sentiment():
@@ -615,7 +527,6 @@ def rag_api_sentiment():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @views.route('/rag-api-webscrape', methods=['POST'])
 def rag_api_webscrape():
     try:
@@ -648,7 +559,6 @@ def rag_api_webscrape():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @views.route('/rag-api-image', methods=['POST'])
 def image_generation():
@@ -701,43 +611,34 @@ def audio_transcript():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # support ticket form
 @views.route('/platform-support', methods=['GET','POST'])
-@token_required
-def platform_support():
+def platform_support_page():
     return render_template('support.html')
 
-
-# send support ticket
 @views.route('/send_message', methods=['POST'])
-def send_message_route():
+def send_contact_message():
     name = request.form.get("name")
     email = request.form.get("email")
     message = request.form.get("message")
 
-    # Check if all fields are completed
     if not name or not email or not message:
         flash('All fields are required!', 'danger')
         return redirect(url_for('index'))
 
-    # Combine name, email, and message into a single string to return
     full_message = f"Name: {name}\nEmail: {email}\nMessage: {message}"
 
     try:
-        # Create the email content
         msg = MIMEMultipart()
         msg['From'] = os.getenv('GMAIL_USERNAME')
         msg['To'] = os.getenv('GMAIL_USERNAME')
         msg['Subject'] = "SourceBox Support Ticket Request"
 
-        # Attach the message
         msg.attach(MIMEText(full_message, 'plain'))
 
-        # Connect to the server and send the email
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
-        server.login(os.getenv('GMAIL_USERNAME'), os.getenv('GOOGLE_PASSWORD'))  # Hide before GitHub push
+        server.login(os.getenv('GMAIL_USERNAME'), os.getenv('GOOGLE_PASSWORD'))
         server.send_message(msg)
         server.quit()
 
@@ -751,18 +652,11 @@ def send_message_route():
 
     return redirect(url_for('views.platform_support'))
 
-
-
-# user support chatbot
 @views.route('/chat_assistant', methods=['POST'])
 def chat_assistant_route():
     user_message = request.json.get("message")
 
-    client = OpenAI(
-        # This is the default and can be omitted
-        api_key = os.getenv('OPENAI_API_KEY')
-    )
-
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -773,7 +667,6 @@ def chat_assistant_route():
         model="gpt-3.5-turbo",
     )
 
-    # Access the content using the 'message' attribute of the Choice object
     assistant_message = chat_completion.choices[0].message.content
     print(assistant_message)
     return jsonify({"message": assistant_message})

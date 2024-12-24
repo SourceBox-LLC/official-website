@@ -6,10 +6,20 @@ import requests
 from .. import db
 import os
 import logging
+import json
+import boto3
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Initialize AWS clients
+aws_session = boto3.Session(
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION")
+)
+lambda_client = aws_session.client('lambda')
 
 service = Blueprint('service', __name__, template_folder='templates')
 
@@ -29,67 +39,110 @@ def record_user_history(action):
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = session.get('access_token')  # Ensure we are getting the token from session
+        token = session.get('access_token')
         logger.info(f"Checking token: {token}")
         if not token:
             flash("Please log in to access this page.", "warning")
             return redirect(url_for('auth.login'))
         
-        headers = {'Authorization': f'Bearer {token}'}
-        response = requests.get(f"{API_URL}/user_history", headers=headers)  # Validate token
-        if response.status_code != 200:
-            logger.error(f"Token validation failed: {response.text}")
+        payload = {
+            "action": "GET_USER",
+            "token": token
+        }
+
+        try:
+            response = lambda_client.invoke(
+                FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+                InvocationType='RequestResponse',
+                Payload=json.dumps(payload)
+            )
+            response_payload = json.loads(response['Payload'].read())
+            logger.info("Lambda GET_USER response: %s", response_payload)
+        except Exception as e:
+            logger.error("Error calling Lambda for token validation: %s", e)
+            flash("Session expired or invalid. Please log in again.", "warning")
+            return redirect(url_for('auth.login'))
+
+        if response_payload.get('statusCode') != 200:
             flash("Session expired or invalid. Please log in again.", "warning")
             return redirect(url_for('auth.login'))
         
         return f(*args, **kwargs)
     return decorated_function
 
-@service.route('/service/wikidoc')
+@service.route('/deepquery')
 @token_required
-def wikidoc():
-    record_user_history("entered DeepQuery")
-    return redirect("https://sourcebox-wikidoc-d6286dbab352.herokuapp.com") # link to wikidoc stand alone app
+def deepquery():
+    token = session.get('access_token')
+    if not token:
+        flash("Please log in to access this page.", "warning")
+        return redirect(url_for('auth.login'))
+    
+    headers = {'Authorization': f'Bearer {token}'}
+    
+    payload = {
+        "action": "GET_USER",
+        "token": token
+    }
 
-@service.route('/service/codedoc')
-@token_required
-def codedoc():
-    record_user_history("entered DeepQuery-Code")
-    return redirect('https://sourcebox-deepquery-code-cbb5c8459900.herokuapp.com') # link to codedoc stand alone app
+    try:
+        response = lambda_client.invoke(
+            FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+            InvocationType='RequestResponse',
+            Payload=json.dumps(payload)
+        )
+        response_payload = json.loads(response['Payload'].read())
+    except Exception as e:
+        logger.error("Error calling Lambda for token validation: %s", e)
+        flash("Session expired or invalid. Please log in again.", "warning")
+        return redirect(url_for('auth.login'))
+
+    if response_payload.get('statusCode') != 200:
+        flash("Session expired or invalid. Please log in again.", "warning")
+        return redirect(url_for('auth.login'))
+        
+    record_user_history("entered DeepQuery")
+    return redirect("https://deepquery.streamlit.app")
 
 @service.route('/service/source-lightning')
 @token_required
 def source_lightning():
     record_user_history("entered source-lightning")
-    return redirect("https://sourcebox-sourcelightning-8952e6a21707.herokuapp.com") # link to source lightning stand alone app
+    return redirect("https://sourcebox-sourcelightning-8952e6a21707.herokuapp.com")
 
-
-@service.route('/service/pack-man')
+@service.route('/pack-man')
 @token_required
 def pack_man():
+    token = session.get('access_token')
+    if not token:
+        flash("Please log in to access this page.", "warning")
+        return redirect(url_for('auth.login'))
+    
+    headers = {'Authorization': f'Bearer {token}'}
+    
+    payload = {
+        "action": "GET_USER",
+        "token": token
+    }
+
+    try:
+        response = lambda_client.invoke(
+            FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+            InvocationType='RequestResponse',
+            Payload=json.dumps(payload)
+        )
+        response_payload = json.loads(response['Payload'].read())
+    except Exception as e:
+        logger.error("Error calling Lambda for token validation: %s", e)
+        flash("Session expired or invalid. Please log in again.", "warning")
+        return redirect(url_for('auth.login'))
+
+    if response_payload.get('statusCode') != 200:
+        flash("Session expired or invalid. Please log in again.", "warning")
+        return redirect(url_for('auth.login'))
+        
     record_user_history("entered pack-man")
-    return redirect("https://sourcebox-packman-418797343a6b.herokuapp.com") # link to packman stand alone app
-
-
-@service.route('/service/imagen')
-@token_required
-def imagen():
-    record_user_history("entered imagen")
-    return redirect("https://sourcebox-imagen-8a638799d89b.herokuapp.com") # link to imagen stand alone app
-
-
-@service.route('/service/videogen')
-@token_required
-def videogen():
-    record_user_history("entered videogen")
-    return "Welcome to videogen, this service is currently under construction. Since you are a premium subscriber you get to be the first to try it out!"
-
-
-@service.route('/service/u-studio')
-@token_required
-def u_studio():
-    record_user_history("entered u-studio")
-    return "Welcome to u-studio, this service is currently under construction. Since you are a premium subscriber you get to be the first to try it out!"
+    return redirect("https://packman.streamlit.app")
 
 
 
