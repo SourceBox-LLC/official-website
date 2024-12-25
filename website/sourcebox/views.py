@@ -78,7 +78,9 @@ def search():
     return render_template('search_results.html', query=query, results=results)
 
 @views.route('/')
+@views.route('/landing')
 def landing():
+    record_user_history("entered landing")
     return render_template('landing.html')
 
 @views.route('/dashboard')
