@@ -328,9 +328,6 @@ def send_support_message():
     return redirect(url_for('views.platform_support'))
 
 
-
-
-
 # Download boilerplate landing.html example
 @views.route('/download_plate/<filename>')
 def download_plate(filename):
