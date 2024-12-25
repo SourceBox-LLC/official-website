@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 import shutil
 import tempfile
 import subprocess
-import stripe
 import markdown
 
 load_dotenv()
@@ -329,71 +328,8 @@ def send_support_message():
     return redirect(url_for('views.platform_support'))
 
 
-# premium unsubscribe page
-@views.route('/premium_unsubscribe', methods=['GET', 'POST'])
-@token_required
-def premium_unsubscribe():
-    return render_template('premium_unsubscribe.html')
 
-# confirmed premium unsubscribe
-@views.route('/premium_unsubscribe_confirm', methods=['POST'])
-@token_required
-def premium_unsubscribe_confirm():
-    # Get the user's token from the session
-    token = session.get('access_token')
-    headers = {'Authorization': f'Bearer {token}'}
 
-    # Fetch the user ID from your API
-    user_id_url = f"{API_URL}/user/id"
-    user_id_response = requests.get(user_id_url, headers=headers)
-
-    if user_id_response.status_code == 200:
-        user_id = user_id_response.json().get('user_id')
-        logger.info(f"User ID {user_id} retrieved successfully.")
-    else:
-        logger.error("Failed to retrieve user ID.")
-        flash('Failed to retrieve user ID', 'error')
-        return redirect(url_for('views.user_settings'))
-
-    # Get the Stripe subscription ID from your API
-    stripe_subscription_url = f"{API_URL}/user/{user_id}/stripe_subscription"
-    stripe_response = requests.get(stripe_subscription_url, headers=headers)
-
-    if stripe_response.status_code == 200:
-        stripe_subscription_id = stripe_response.json().get('stripe_subscription_id')
-
-        # Check if the subscription ID exists and is valid
-        if not stripe_subscription_id:
-            logger.error(f"No active Stripe subscription ID found for user {user_id}.")
-            flash('Your subscription is not active or already canceled. Please contact support if this is an error.', 'error')
-            return redirect(url_for('views.user_settings'))
-        else:
-            logger.info(f"Retrieved Stripe subscription ID: {stripe_subscription_id}")
-
-            # Cancel the Stripe subscription at the end of the billing cycle
-            try:
-                stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-                stripe.Subscription.modify(
-                    stripe_subscription_id,
-                    cancel_at_period_end=True  # Cancel at the end of the billing cycle
-                )
-                logger.info(f"Subscription {stripe_subscription_id} set to cancel at period end.")
-                flash('Your subscription has been canceled. Premium access will continue until the end of the billing period.', 'success')
-
-                # Do not remove premium status yet. We wait for the Stripe webhook (customer.subscription.deleted)
-                # to handle the actual removal at the end of the billing cycle.
-
-            except stripe.error.StripeError as e:
-                logger.error(f"Stripe error during subscription cancellation: {e}")
-                flash('Failed to cancel your Stripe subscription. Please contact support.', 'error')
-                return redirect(url_for('views.user_settings'))
-    else:
-        logger.error(f"Failed to retrieve Stripe subscription for user {user_id}.")
-        flash('Failed to retrieve your Stripe subscription. Please contact support.', 'error')
-        return redirect(url_for('views.user_settings'))
-
-    # Redirect the user to the dashboard
-    return redirect(url_for('views.dashboard'))
 
 # Download boilerplate landing.html example
 @views.route('/download_plate/<filename>')
