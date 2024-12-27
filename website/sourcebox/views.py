@@ -31,15 +31,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def record_user_history(action):
-    token = session.get('access_token')
-    if token:
-        headers = {'Authorization': f'Bearer {token}'}
-        data = {'action': action}
-        response = requests.post(f"{API_URL}/user_history", json=data, headers=headers)
-        if response.status_code != 201:
-            flash('Failed to record user history', 'error')
-
 @views.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '').lower().strip()
@@ -79,14 +70,11 @@ def search():
 @views.route('/')
 @views.route('/landing')
 def landing():
-    record_user_history("entered landing")
     return render_template('landing.html')
 
 @views.route('/dashboard')
 @token_required
 def dashboard():
-    record_user_history("entered dashboard")
-
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
@@ -169,7 +157,6 @@ def updates():
     response = requests.get(f"{API_URL}/platform_updates/list")
     if response.status_code == 200:
         all_updates = response.json()
-        record_user_history("entered updates")
         return render_template('updates.html', all_updates=all_updates)
     else:
         flash('Failed to retrieve updates', 'error')
@@ -178,8 +165,6 @@ def updates():
 @views.route('/content')
 @token_required
 def content():
-    record_user_history("entered content")
-
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
 
@@ -254,8 +239,6 @@ def premium_info():
 @views.route('/user_settings')
 @token_required
 def user_settings():
-    record_user_history("entered user_settings")
-
     token = session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'}
     user_id_url = f"{API_URL}/user/id"
@@ -272,22 +255,18 @@ def user_settings():
 
 @views.route('/documentation')
 def documentation():
-    record_user_history("entered documentation")
     return render_template('docs.html')
 
 @views.route('/platform_support')
 def platform_support():
-    record_user_history("entered support")
     return render_template('support.html')
 
 @views.route('/learn_more')
 def learn_more():
-    record_user_history("entered learn_more")
     return render_template('learn_more.html')
 
 @views.route('/documentation/help')
 def documentation_help():
-    record_user_history("entered doc help")
     return render_template('help.html')
 
 # First route for support messages

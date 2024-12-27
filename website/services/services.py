@@ -25,17 +25,6 @@ service = Blueprint('service', __name__, template_folder='templates')
 
 API_URL = os.getenv('API_URL')  # Ensure this is set in your .env file
 
-def record_user_history(action):
-    token = session.get('access_token')  # Get token from session
-    if token:
-        headers = {'Authorization': f'Bearer {token}'}
-        data = {'action': action}
-        logger.info(f"Recording user history with headers: {headers} and data: {data}")
-        response = requests.post(f"{API_URL}/user_history", json=data, headers=headers)
-        if response.status_code != 201:
-            logger.error(f"Failed to record user history: {response.text}")
-            flash('Failed to record user history', 'error')
-
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -101,13 +90,11 @@ def deepquery():
         flash("Session expired or invalid. Please log in again.", "warning")
         return redirect(url_for('auth.login'))
         
-    record_user_history("entered DeepQuery")
     return redirect("https://deepquery.streamlit.app")
 
 @service.route('/service/source-lightning')
 @token_required
 def source_lightning():
-    record_user_history("entered source-lightning")
     return redirect("https://sourcebox-sourcelightning-8952e6a21707.herokuapp.com")
 
 @service.route('/pack-man')
@@ -141,7 +128,6 @@ def pack_man():
         flash("Session expired or invalid. Please log in again.", "warning")
         return redirect(url_for('auth.login'))
         
-    record_user_history("entered pack-man")
     return redirect("https://packman.streamlit.app")
 
 
