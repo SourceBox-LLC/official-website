@@ -8,7 +8,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import logging
-from openai import OpenAI
 from dotenv import load_dotenv
 import shutil
 import tempfile
@@ -570,19 +569,6 @@ def send_contact_message():
 def chat_assistant_route():
     user_message = request.json.get("message")
 
-    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": user_message,
-            }
-        ],
-        model="gpt-3.5-turbo",
-    )
-
-    assistant_message = chat_completion.choices[0].message.content
-    print(assistant_message)
-    return jsonify({"message": assistant_message})
+    return jsonify({"message": f"Your prompt is: {user_message}"})
 
 
