@@ -10,12 +10,13 @@
 {% else %}
 <p align="center">Get more out of SourceBox with <a href="/premium_info">premium</a></p>
 {% endif %}
-
-<img align="center" src="{{ url_for('static', filename='images/sourcebox-logo.webp') }}"
-alt="SourceBox Logo" class="img-fluid rounded-5" style="width: 200px; height: auto;">
 <br/>
 <br/>
 <div class="row">
+  <div class="col-sm-6 mb-4">
+    <img align="left" src="{{ url_for('static', filename='images/sourcebox-logo.webp') }}"
+    alt="SourceBox Logo" class="img-fluid rounded-5" style="width: 450px; height: auto;">
+  </div>
   <div class="col-sm-6 mb-4">
     <div class="card box-color3 rounded-5 border-dark">
       <div class="card-body">
@@ -46,10 +47,9 @@ alt="SourceBox Logo" class="img-fluid rounded-5" style="width: 200px; height: au
       </div>
     </div>
   </div>
+  
 </div>
-
 <br/>
-
 <div class="row">
 <div class="col-sm-6 mb-4">
   <div class="card box-color3 rounded-5 border-dark">
@@ -114,7 +114,105 @@ alt="SourceBox Logo" class="img-fluid rounded-5" style="width: 200px; height: au
 </div>
 </div>
 <br/>
+<div class="row">
+<div class="col-sm-6 mb-4">
+  <div class="card box-color3 rounded-5 border-dark">
+    <div class="card-body">
+      <h4 class="card-title">Template Lab
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+          <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641z"/>
+        </svg>
+      </h4>
+      <br/>
+      <p class="card-text border border-dark p-3 rounded-5">Select from a wide range of templates to get started with your next project. Generate templates with AI and edit templates in our template editor.</p>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col">
+            <button type="button" class="btn btn-outline-secondary rounded-5">Launch Source-Lightning</button>
+          </div>
+          <div class="col">
+            <div align="right" class="p-1">
+              <a href="https://template-lab.streamlit.app">
+                <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <hr/>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="col-sm-6 mb-4">
+  <div class="card box-color3 rounded-5 border-dark">
+    <div class="card-body">
+      <h4 class="card-title">Lightning MD 
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
+          <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
+        </svg>
+      </h4>
+      <br/>
+      <p class="card-text border border-dark p-3 rounded-5">Tired of writing code documentation? Lightning MD uses AI to automatically generate documentation based on your github codebase repo.</p>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col">
+            <button type="button" class="btn btn-outline-secondary rounded-5">Lightning MD</button>
+          </div>
+          <div class="col">
+            <div align="right" class="p-1">
+              <a href="https://lightningmd.streamlit.app">
+                <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <hr/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br/>
+</div>
+<h1 align="center">Off Platform Services</h1>
+<br/>
+<div align="center">
+  <div class="col-sm-6 mb-4">
+    <div class="card box-color3 rounded-5 border-dark">
+      <div class="card-body">
+        <h4 class="card-title">Project CADIA 
+          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
+            <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
+          </svg>
+        </h4>
+        <br/>
+        <p class="card-text border border-dark p-3 rounded-5">3D printing and design made easy! Bring your ideas to life effortlessly with AI-powered CAD, instant printing, and seamless delivery.</p>
+        <div class="container text-center">
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-outline-secondary rounded-5">Visit Project CADIA</button>
+            </div>
+            <div class="col">
+              <div align="right" class="p-1">
+                <a href="https://projectcadia.com">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <hr/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <br/>
 <br/>
 <p align="center">Report bugs and issues <a href="https://forms.gle/sA1Z1FRESpwFo6CJA">Here</a></p>

@@ -41,7 +41,7 @@ def token_required(f):
 
         try:
             response = lambda_client.invoke(
-                FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+                FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',
                 InvocationType='RequestResponse',
                 Payload=json.dumps(payload)
             )
@@ -76,7 +76,7 @@ def deepquery():
 
     try:
         response = lambda_client.invoke(
-            FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+            FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',
             InvocationType='RequestResponse',
             Payload=json.dumps(payload)
         )
@@ -95,7 +95,7 @@ def deepquery():
 @service.route('/service/source-lightning')
 @token_required
 def source_lightning():
-    return redirect("https://sourcebox-sourcelightning-8952e6a21707.herokuapp.com")
+    return redirect("https://ace-app-demo.streamlit.app")
 
 @service.route('/pack-man')
 @token_required
@@ -114,7 +114,7 @@ def pack_man():
 
     try:
         response = lambda_client.invoke(
-            FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',
+            FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',
             InvocationType='RequestResponse',
             Payload=json.dumps(payload)
         )

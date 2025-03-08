@@ -98,27 +98,6 @@ def dashboard():
         else:
             logger.warning("Could not retrieve premium status for user_id=%s", user_id)
 
-    # Fetch user history
-    history_resp = requests.get(f"{API_URL}/user_history", headers=headers)
-    if history_resp.status_code == 200:
-        all_history_items = history_resp.json()
-
-        # Use a set to track seen actions to remove duplicates
-        seen_actions = set()
-        unique_filtered_items = []
-        for item in all_history_items:
-            if item['action'] in (
-                "entered wikidoc",
-                "entered source-lightning",
-                "entered pack-man",
-                "entered source-mail"
-            ) and item['action'] not in seen_actions:
-                unique_filtered_items.append(item)
-                seen_actions.add(item['action'])
-
-        # Limit to five items
-        if len(unique_filtered_items) > 5:
-            unique_filtered_items = unique_filtered_items[:5]
 
         # Token usage logic
         free_token_limit = 1000000
@@ -141,7 +120,6 @@ def dashboard():
             token_percentage_used=token_percentage_used
         )
     else:
-        flash("Failed to retrieve user history.", "warning")
         return render_template(
             'dashboard.html',
             is_premium=is_premium,

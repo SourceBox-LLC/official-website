@@ -9,17 +9,27 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 # Load environment variables
 load_dotenv()
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Create the Blueprint
-auth = Blueprint('auth', __name__, template_folder='templates')
-
 # Read AWS credentials from environment variables
 ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID", "")
 SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
 REGION = os.getenv("AWS_REGION", "")
+
+# Log the loaded AWS Region (Do NOT log ACCESS_KEY or SECRET_KEY)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info(f"AWS Region: {REGION}")
+
+# Create the Blueprint
+auth = Blueprint('auth', __name__, template_folder='templates')
+
+
+# Ensure all required environment variables are present
+required_env_vars = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION"]
+for var in required_env_vars:
+    if not os.getenv(var):
+        logger.error(f"Missing required environment variable: {var}")
+        raise EnvironmentError(f"Missing required environment variable: {var}")
+
 
 # Create a Boto3 session and Lambda client
 aws_session = boto3.Session(
@@ -49,7 +59,7 @@ def token_required(f):
 
         try:
             response = lambda_client.invoke(
-                FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',  # Replace with your actual Lambda function name
+                FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',  # Replace with your actual Lambda function name
                 InvocationType='RequestResponse',
                 Payload=json.dumps(payload)
             )
@@ -94,7 +104,7 @@ def sign_up():
 
         try:
             response = lambda_client.invoke(
-                FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',  # Replace with your actual Lambda function name
+                FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',  # Replace with your actual Lambda function name
                 InvocationType='RequestResponse',
                 Payload=json.dumps(payload)
             )
@@ -141,7 +151,7 @@ def login():
 
         try:
             response = lambda_client.invoke(
-                FunctionName='sb-user-auth-sbUserAuthFunction-3StRr85VyfEC',  # Replace with your actual Lambda function name
+                FunctionName='sb-user-auth-sbUserAuthFunction-zjl3761VSGKj',  # Replace with your actual Lambda function name
                 InvocationType='RequestResponse',
                 Payload=json.dumps(payload)
             )
